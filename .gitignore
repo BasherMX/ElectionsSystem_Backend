@@ -1,0 +1,15 @@
+# Ignorar archivos de logs
+*.log
+
+# Ignorar directorios generados por el sistema
+node_modules/
+dist/
+build/
+
+# Ignorar archivos de configuración local
+.env
+config/*.json
+
+# Ignorar archivos sensibles
+secrets/*
+passwords/*
