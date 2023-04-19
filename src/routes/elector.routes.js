@@ -1,5 +1,5 @@
 import { Router } from "express";
-import {getElectorById, getAllElectors, createElector, updateElector} from  "../controllers/elector.controller.js"
+import {getElectorById, getAllElectors, createElector, updateElector, disableElector, enableElector} from  "../controllers/elector.controller.js"
 
 const router = Router();
 
@@ -11,7 +11,9 @@ router.post('/create', createElector);
 
 router.patch('/update/:id', updateElector);
 
-// router.delete('/disable/:id', enableCandidate); //Delete a candidate
+router.post('/disable/:id', disableElector);
+
+router.post('/enable/:id', enableElector); 
 
 
 export default router;

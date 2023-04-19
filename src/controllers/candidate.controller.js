@@ -1,6 +1,6 @@
 import {
   pool
-} from "../db.js";
+} from "../db/db.js";
 
 // --- GET ALL CANDIDATES ---
 export const getAllCandidates = async (req, res) => {
@@ -115,50 +115,58 @@ export const updateCandidate = async (req, res) => {
   }
 }
 
-// // --- DELETE CANDIDATES ---
-// export const disableCandidate = async (req, res) => {
-//   try {
-//     const { id } = req.params;
-//     const [candidate] = await pool.query('SELECT * FROM candidate WHERE candidate_id = ?', [id]);
-//     if (candidate.length === 0) {
-//       return res.status(404).send({ error: 'Candidate not found' });
-//     }
-//     if (candidate[0].enable === 0) {
-//       return res.status(400).send({ error: 'Candidate already deleted' });
-//     }
-//     await pool.query('UPDATE candidate SET enable = false WHERE candidate_id = ?', [id]);
-//     res.send({
-//       message: 'Candidate deleted successfully',
-//       deletedCandidate: candidate[0].name + " " + candidate[0].first_lastname + " " + candidate[0].second_lastname
-//     });
-//   } catch (err) {
-//     console.error(err);
-//     res.status(500).send('Error deleting candidate');
-//   }
-// };
+// --- DELETE CANDIDATES ---
+export const disableCandidate = async (req, res) => {
+  try {
+    const {
+      id
+    } = req.params;
+    const [candidate] = await pool.query('SELECT * FROM candidate WHERE candidate_id = ?', [id]);
+    if (candidate.length === 0) {
+      return res.status(404).send({
+        error: 'Candidate not found'
+      });
+    }
+    if (candidate[0].enable === 0) {
+      return res.status(400).send({
+        error: 'Candidate already deleted'
+      });
+    }
+    await pool.query('UPDATE candidate SET enable = false WHERE candidate_id = ?', [id]);
+    res.send({
+      message: 'Candidate deleted successfully',
+      deletedCandidate: candidate[0].name + " " + candidate[0].first_lastname + " " + candidate[0].second_lastname
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('Error deleting candidate');
+  }
+};
 
-// // --- RECOVER CANDIDATES ---
-// export const enableCandidate = async (req, res) => {
-//   try {
-//     const { id } = req.params;
-//     const [candidate] = await pool.query('SELECT * FROM candidate WHERE candidate_id = ?', [id]);
-//     if (candidate.length === 0) {
-//       return res.status(404).send({ error: 'Candidate not found' });
-//     }
-//     if (candidate[0].enable === 1) {
-//       return res.status(400).send({ error: 'Candidate already recovered' });
-//     }
-//     await pool.query('UPDATE candidate SET enable = true WHERE candidate_id = ?', [id]);
-//     res.send({
-//       message: 'Candidate recovered successfully',
-//       deletedCandidate: candidate[0].name + " " + candidate[0].first_lastname + " " + candidate[0].second_lastname
-//     });
-//   } catch (err) {
-//     console.error(err);
-//     res.status(500).send('Error deleting candidate');
-//   }
-// };
-
-
-
-
+// --- RECOVER CANDIDATES ---
+export const enableCandidate = async (req, res) => {
+  try {
+    const {
+      id
+    } = req.params;
+    const [candidate] = await pool.query('SELECT * FROM candidate WHERE candidate_id = ?', [id]);
+    if (candidate.length === 0) {
+      return res.status(404).send({
+        error: 'Candidate not found'
+      });
+    }
+    if (candidate[0].enable === 1) {
+      return res.status(400).send({
+        error: 'Candidate already recovered'
+      });
+    }
+    await pool.query('UPDATE candidate SET enable = true WHERE candidate_id = ?', [id]);
+    res.send({
+      message: 'Candidate recovered successfully',
+      deletedCandidate: candidate[0].name + " " + candidate[0].first_lastname + " " + candidate[0].second_lastname
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('Error deleting candidate');
+  }
+};

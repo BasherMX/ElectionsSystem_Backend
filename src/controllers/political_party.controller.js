@@ -1,4 +1,4 @@
-import { pool } from "../db.js";
+import { pool } from "../db/db.js";
 
 // --- GET ALL POLITICAL PARTIES ---
 export const getAllParties = async (req, res) => {

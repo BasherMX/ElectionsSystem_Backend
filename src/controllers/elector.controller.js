@@ -1,4 +1,5 @@
-import { pool } from "../db.js";
+import { pool } from "../db/db.js";
+import { generateId } from "../helpers/elector.helper.js";
   
   // --- GET ALL ELECTORS ---
   export const getAllElectors = async (req, res) => {
@@ -12,6 +13,7 @@ import { pool } from "../db.js";
       });
     }
   }
+  
   
   // --- GET ELECTORS BY PARTY ID ---
   export const getElectorById = async (req, res) => {
@@ -31,6 +33,7 @@ import { pool } from "../db.js";
     }
   }
   
+
   // --- CREATE ELECTORS ---
   export const createElector = async (req, res) => {
     try {
@@ -62,7 +65,6 @@ import { pool } from "../db.js";
       });
     }
   }
-
   
   
   // --- UPDATE ELECTORS ---
@@ -91,80 +93,59 @@ import { pool } from "../db.js";
     }
   }
 
-
   
-  // // --- DELETE ELECTORS ---
-  // export const disableCandidate = async (req, res) => {
-  //   try {
-  //     const { id } = req.params;
-  //     const [candidate] = await pool.query('SELECT * FROM candidate WHERE candidate_id = ?', [id]);
-  //     if (candidate.length === 0) {
-  //       return res.status(404).send({ error: 'Candidate not found' });
-  //     }
-  //     if (candidate[0].enable === 0) {
-  //       return res.status(400).send({ error: 'Candidate already deleted' });
-  //     }
-  //     await pool.query('UPDATE candidate SET enable = false WHERE candidate_id = ?', [id]);
-  //     res.send({
-  //       message: 'Candidate deleted successfully',
-  //       deletedCandidate: candidate[0].name + " " + candidate[0].first_lastname + " " + candidate[0].second_lastname
-  //     });
-  //   } catch (err) {
-  //     console.error(err);
-  //     res.status(500).send('Error deleting candidate');
-  //   }
-  // };
-  
-  // // --- RECOVER ELECTORS ---
-  // export const enableCandidate = async (req, res) => {
-  //   try {
-  //     const { id } = req.params;
-  //     const [candidate] = await pool.query('SELECT * FROM candidate WHERE candidate_id = ?', [id]);
-  //     if (candidate.length === 0) {
-  //       return res.status(404).send({ error: 'Candidate not found' });
-  //     }
-  //     if (candidate[0].enable === 1) {
-  //       return res.status(400).send({ error: 'Candidate already recovered' });
-  //     }
-  //     await pool.query('UPDATE candidate SET enable = true WHERE candidate_id = ?', [id]);
-  //     res.send({
-  //       message: 'Candidate recovered successfully',
-  //       deletedCandidate: candidate[0].name + " " + candidate[0].first_lastname + " " + candidate[0].second_lastname
-  //     });
-  //   } catch (err) {
-  //     console.error(err);
-  //     res.status(500).send('Error deleting candidate');
-  //   }
-  // };
-  
-  
-  
-  
-  function generateId(firstLastName, secondLastName, dateOfBirth, firstName) {
-    let id = "";
-    let randomChars = "";
+  // --- DELETE ELECTORS ---
+  export const disableElector = async (req, res) => {
+    try {
+      const { id } = req.params;
+      const [elector] = await pool.query('SELECT * FROM elector WHERE elector_id = ?', [id]);
+      if (elector.length === 0) {
+        return res.status(404).send({ error: 'Elector not found' });
+      }
 
-    firstName = removeAccents(firstName);
-    secondLastName = removeAccents(secondLastName);
-    firstLastName = removeAccents(firstLastName);
+      if (elector[0].enable === 0) {
+        return res.status(400).send({ error: 'Elector already deleted' });
+      }
 
-    id += firstLastName.substring(0, 3);
-    id += secondLastName.substring(0, 1);
-
-    const birthDate = new Date(dateOfBirth);
-
-    id += birthDate.getDate().toString().padStart(2, "0");
-    id += birthDate.getFullYear().toString();
-    id += firstName.substring(0, 2);
-
-    for (let i = 0; i < 4; i++) {
-      randomChars += String.fromCharCode(Math.floor(Math.random() * 26) + 97);
+      await pool.query('UPDATE elector SET enable = false WHERE elector_id = ?', [id]);
+      res.send({
+        message: 'Elector deleted successfully',
+        deletedElector: elector[0].name + " " + elector[0].first_lastname + " " + elector[0].second_lastname
+      });
+    } catch (err) {
+      console.error(err);
+      res.status(500).send('Error deleting elector');
     }
-    id += randomChars;
+  };
 
-    return id.toUpperCase();
-  }
   
-  function removeAccents(str) {
-    return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-  }
+  // --- RECOVER ELECTORS ---
+  export const enableElector = async (req, res) => {
+    try {
+      const { id } = req.params;
+      const [elector] = await pool.query('SELECT * FROM elector WHERE elector_id = ?', [id]);
+      if (elector.length === 0) {
+        return res.status(404).send({ error: 'Elector not found' });
+      }
+
+      if (elector[0].enable === 1) {
+        return res.status(400).send({ error: 'Elector already enabled' });
+      }
+
+      await pool.query('UPDATE elector SET enable = true WHERE elector_id = ?', [id]);
+      res.send({
+        message: 'Elector enabled successfully',
+        enabledElector: elector[0].name + " " + elector[0].first_lastname + " " + elector[0].second_lastname
+      });
+    } catch (err) {
+      console.error(err);
+      res.status(500).send('Error enabling elector');
+    }
+  };
+  
+  
+  
+  
+
+
+  

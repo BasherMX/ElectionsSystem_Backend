@@ -1,6 +1,6 @@
 import {v4} from 'uuid';
 import {toString} from 'qrcode';
-import { pool } from "../db.js";
+import { pool } from "../db/db.js";
 
 
 // --- GET ELECTOR QR ---

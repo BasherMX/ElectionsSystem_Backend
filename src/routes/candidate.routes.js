@@ -1,18 +1,20 @@
 import { Router } from "express";
-import {getCandidateById, createCandidate, updateCandidate, getAllCandidates} from  "../controllers/candidate.controller.js"
+import {getCandidateById, createCandidate, updateCandidate, getAllCandidates, disableCandidate, enableCandidate} from  "../controllers/candidate.controller.js"
 
 const router = Router();
 
 
-router.get('/getById/:id', getCandidateById); //Get a candidate by ID
+router.get('/getById/:id', getCandidateById);
 
-router.get('/getAll', getAllCandidates); //Get all candidates
+router.get('/getAll', getAllCandidates);
 
-router.post('/create', createCandidate); //Create a candidate
+router.post('/create', createCandidate);
 
-router.patch('/update/:id', updateCandidate); //Update a candidate
+router.patch('/update/:id', updateCandidate);
 
-// router.delete('/disable/:id', enableCandidate); //Delete a candidate
+router.post('/disable/:id', disableCandidate);
+
+router.post('/enable/:id', enableCandidate);
 
 
 export default router;
