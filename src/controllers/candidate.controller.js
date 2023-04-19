@@ -103,13 +103,8 @@ export const updateCandidate = async (req, res) => {
         error: 'Candidate not found'
       });
     }
-    const [party] = await pool.query('SELECT * FROM political_party WHERE party_id = ?', [party_id]);
-    if (party.length === 0) {
-      return res.status(400).send({
-        error: 'Invalid party_id'
-      });
-    }
-    const [result] = await pool.query('UPDATE candidate SET name = IFNULL(?,name), first_lastname = IFNULL(?,first_lastname), second_lastname = IFNULL(?,second_lastname), pseudonym = IFNULL(?,pseudonym), party_id = ? WHERE candidate_id = ?',
+
+    const [result] = await pool.query('UPDATE candidate SET name = IFNULL(?,name), first_lastname = IFNULL(?,first_lastname), second_lastname = IFNULL(?,second_lastname), pseudonym = IFNULL(?,pseudonym), party_id = IFNULL(?,party_id) WHERE candidate_id = ?',
       [name, first_lastname, second_lastname, pseudonym, party_id, id]);
     res.send("Candidate updated successfully");
   } catch (err) {
