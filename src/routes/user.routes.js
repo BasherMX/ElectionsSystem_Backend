@@ -1,10 +1,12 @@
 import { Router } from "express";
-import {getUserById, createUser, updateUser, getAllUsers, disableUser, enableUser, verifyAccount} from  "../controllers/user.controller.js"
+import {getUserById, createUser, updateUser, getAllEnableUsers, getAllDisableUsers, disableUser, enableUser} from  "../controllers/user.controller.js"
 
 const router = Router();
 
 
-router.get('/getAll', getAllUsers);
+router.get('/getAllEnableUsers', getAllEnableUsers);
+
+router.get('/getAllDisableUsers', getAllDisableUsers);
 
 router.get('/getById/:id', getUserById);
 
@@ -15,8 +17,6 @@ router.patch('/update/:id', updateUser);
 router.post('/disable/:id', disableUser);
 
 router.post('/enable/:id', enableUser);
-
-router.post('/verifyAccount/:id', verifyAccount);
 
 
 export default router;

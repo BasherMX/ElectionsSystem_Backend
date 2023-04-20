@@ -5,6 +5,7 @@ import politicalPartyRoutes from "./routes/political_party.routes.js"
 import qrCodeRoutes from "./routes/qr_code.routes.js"
 import electorRoutes from "./routes/elector.routes.js"
 import userRoutes from "./routes/user.routes.js"
+import userNoAuth from "./routes/noAuth.routes.js"
 
 
 
@@ -25,6 +26,9 @@ app.use('/elector', electorRoutes)
 
 //User Routes
 app.use('/user', userRoutes)
+
+//User NoAuth
+app.use('/noAuth', userNoAuth)
 
 
 
