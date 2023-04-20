@@ -85,7 +85,6 @@ export const createCandidate = async (req, res) => {
 
 // --- UPDATE CANDIDATES ---
 export const updateCandidate = async (req, res) => {
-  console.log("updateCandidate");
   try {
     const {
       id

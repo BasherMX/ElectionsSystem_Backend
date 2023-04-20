@@ -38,6 +38,7 @@ export const getAllEnableUsers = async (req, res) => {
 	}
 };
 
+
 // --- GET ALL DISABLE USERS ---
 export const getAllDisableUsers = async (req, res) => {
 	try {
@@ -78,8 +79,15 @@ export const getUserById = async (req, res) => {
 		if (rows.length === 0) {
 			res.status(404).send("User not found");
 		}
-
-		res.send(rows[0]);
+		const users = rows.map((row) => ({
+			user_id: row.user_id,
+			name: row.name,
+			first_lastname: row.first_lastname,
+			second_lastname: row.second_lastname,
+			user_type: row.user_type,
+			email: row.email
+		}));
+		res.send(users);
 	} catch (err) {
 		console.error(err);
 		res.status(500).send("Error searching User");

@@ -98,8 +98,6 @@ export const getVotationQrCode = async (req, res) => {
                     error: 'The QR code was already generated, only can be generated once'
                 });
                 return;
-            }else{
-                console.log('The QR code was not generated yet');
             }
         }
 

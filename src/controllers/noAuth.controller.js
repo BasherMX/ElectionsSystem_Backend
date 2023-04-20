@@ -10,7 +10,6 @@ export const verifyUserAccount = async (req, res) => {
 		} = req.params;
 		const id = code.substring(0, 8);
 		const password = code.substring(12);
-		console.log(id);
 
 		const [User] = await pool.query("SELECT * FROM User WHERE User_id = ?", [
 			id,

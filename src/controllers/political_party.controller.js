@@ -61,7 +61,6 @@ export const createParty = async (req, res) => {
 
 // --- UPDATE CANDIDATES ---
 export const updateCandidate = async (req, res) => {
-    console.log("updateCandidate");
     try {
       const { id } = req.params;
       const { name, first_lastname, second_lastname, pseudonym, party_id } = req.body;

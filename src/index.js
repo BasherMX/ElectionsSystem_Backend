@@ -7,6 +7,8 @@ import electorRoutes from "./routes/elector.routes.js"
 import userRoutes from "./routes/user.routes.js"
 import userNoAuth from "./routes/noAuth.routes.js"
 
+// import authMiddleware from './middleweres/middleware.js';
+
 
 
 const app = express()
