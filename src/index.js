@@ -11,12 +11,20 @@ import userRoutes from "./routes/user.routes.js"
 const app = express()
 app.use(express.json())
 
+//Candidate Routes
+app.use('/candidate', CandidateRoutes) 
 
-app.use('/candidate', CandidateRoutes) //Candidate Routes
-app.use('/politicalParty', politicalPartyRoutes) //Political party Routes
-app.use('/qrCode', qrCodeRoutes) //QR Code Routes
-app.use('/elector', electorRoutes) //Elector Routes
-app.use('/user', userRoutes) //User Routes
+//Political party Routes
+app.use('/politicalParty', politicalPartyRoutes)
+
+//QR Code Routes
+app.use('/qrCode', qrCodeRoutes)
+
+//Elector Routes
+app.use('/elector', electorRoutes)
+
+//User Routes
+app.use('/user', userRoutes)
 
 
 
