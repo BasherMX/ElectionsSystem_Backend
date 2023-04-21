@@ -5,6 +5,7 @@ import {
 	GenerateRandomPassword,
 	generateRandomId,
 } from "../helpers/user.helper.js";
+import bcrypt from 'bcrypt';
 
 // --- GET ALL ENABLE USERS ---
 export const getAllEnableUsers = async (req, res) => {
@@ -18,6 +19,7 @@ export const getAllEnableUsers = async (req, res) => {
 			user_type: row.user_type,
 			enable: row.enable,
 			email: row.email,
+			password: row.password,
 			verified_acount: row.verified_acount,
 			permissions: {
 				electorPermission: row.electorPermission,
@@ -120,22 +122,26 @@ export const createUser = async (req, res) => {
 
 		const user_id = generateRandomId();
 		const passwordAux = GenerateRandomPassword();
-		const currentUrl = window.location.hostname;
+		const salt = await bcrypt.genSalt(10);
+		const hashedPassword = await bcrypt.hash(passwordAux, salt);
+		// const currentUrl = window.location.hostname;
 
-		// await pool.query(
-		// 	"INSERT INTO User (user_id,name, first_lastname, second_lastname, user_type, password, email) VALUES (?, ?, ?, ?, ?, ?,?)",
-		// 	[ user_id,name,first_lastname,second_lastname,user_type,passwordAux,email]
-		// );
+		await pool.query(
+			"INSERT INTO User (user_id,name, first_lastname, second_lastname, user_type, password, email) VALUES (?, ?, ?, ?, ?, ?,?)",
+			[ user_id,name,first_lastname,second_lastname,user_type,hashedPassword,email]
+		);
 
 		updatePermissions(user_id, user_type);
 
 		//send confirmation link by email like:
-		const link = `http://localhost:3000/user/verifyAccount/${user_id}${passwordAux}`;
+		const link = `http://localhost:3000/public/verifyAccount/${user_id}`;
 
 		res.send({
 			message: "User created successfully",
 			link: link,
-			currentUrl:currentUrl
+			mal: {email: email,
+			password: passwordAux},
+			hashed: hashedPassword
 		});
 	} catch (err) {
 		console.error(err);
