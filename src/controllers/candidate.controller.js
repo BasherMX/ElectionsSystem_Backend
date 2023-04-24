@@ -2,10 +2,36 @@ import {
   pool
 } from "../db/db.js";
 
-// --- GET ALL CANDIDATES ---
-export const getAllCandidates = async (req, res) => {
+// --- GET ALL ENABLE CANDIDATES ---
+export const getAllEnableCandidates = async (req, res) => {
   try {
-    const [rows] = await pool.query('SELECT * FROM candidate');
+    const [rows] = await pool.query('SELECT * FROM candidate WHERE enable = 1 ');
+    res.send(rows);
+  } catch (err) {
+    console.error(err);
+    res.status(500).send({
+      error: 'Error fetching candidates'
+    });
+  }
+}
+
+// --- GET ALL DISABLE CANDIDATES ---
+export const getAllDisableCandidates = async (req, res) => {
+  try {
+    const [rows] = await pool.query('SELECT * FROM candidate WHERE enable = 0 ');
+    res.send(rows);
+  } catch (err) {
+    console.error(err);
+    res.status(500).send({
+      error: 'Error fetching candidates'
+    });
+  }
+}
+
+// --- GET ALL NOT ASSIGNED CANDIDATES ---
+export const getAllNotAssignedCandidates = async (req, res) => {
+  try {
+    const [rows] = await pool.query('SELECT * FROM candidate WHERE status = 0 ');
     res.send(rows);
   } catch (err) {
     console.error(err);
@@ -23,13 +49,17 @@ export const getCandidateById = async (req, res) => {
     } = req.params;
     const [rows] = await pool.query('SELECT * FROM candidate WHERE candidate_id = ?', [id]);
     if (rows.length === 0) {
-      res.status(404).send('Candidate not found');
+      res.status(404).send({
+        error: 'Candidate not found'
+      });
     } else {
       res.send(rows[0]);
     }
   } catch (err) {
     console.error(err);
-    res.status(500).send('Error searching candidate');
+    res.status(500).send({
+      error: 'Error searching candidate'
+    });
   }
 }
 
@@ -43,27 +73,18 @@ export const createCandidate = async (req, res) => {
       pseudonym,
       party_id
     } = req.body;
-    if (!name) {
-      return res.status(400).send({
-        error: 'The name is required'
-      });
-    } else if (!first_lastname) {
-      return res.status(400).send({
-        error: 'The first lastname is required'
-      });
-    } else if (!second_lastname) {
-      return res.status(400).send({
-        error: 'The second lastname is required'
-      });
-    } else if (!pseudonym) {
-      return res.status(400).send({
-        error: 'The pseudonym is required'
-      });
-    } else if (!party_id) {
-      return res.status(400).send({
-        error: 'The party ID is required'
-      });
+    const requiredFields = ['name',
+      'first_lastname',
+      'second_lastname',
+      'pseudonym',
+      'party_id'];
+    const missingFields = requiredFields.filter(field => !req.body[field]);
+    
+    if (missingFields.length > 0) {
+      const error = `The following fields are required: ${missingFields.join(', ')}`;
+      return res.status(400).send({ error });
     }
+    
 
     const [result] = await pool.query('SELECT * FROM candidate WHERE name = ? AND first_lastname = ? AND second_lastname = ?', [name, first_lastname, second_lastname]);
     if (result.length > 0) {
@@ -72,7 +93,9 @@ export const createCandidate = async (req, res) => {
       });
     } else {
       await pool.query('INSERT INTO candidate (name, first_lastname, second_lastname, pseudonym, party_id) VALUES (?, ?, ?, ?, ?)', [name, first_lastname, second_lastname, pseudonym, party_id]);
-      res.send("Candidate created successfully");
+      res.send({
+        message: "Candidate created successfully"
+      });
     }
   } catch (err) {
     console.error(err);
@@ -105,7 +128,9 @@ export const updateCandidate = async (req, res) => {
 
     const [result] = await pool.query('UPDATE candidate SET name = IFNULL(?,name), first_lastname = IFNULL(?,first_lastname), second_lastname = IFNULL(?,second_lastname), pseudonym = IFNULL(?,pseudonym), party_id = IFNULL(?,party_id) WHERE candidate_id = ?',
       [name, first_lastname, second_lastname, pseudonym, party_id, id]);
-    res.send("Candidate updated successfully");
+    res.send({
+      message: "Candidate updated successfully"
+    });
   } catch (err) {
     console.error(err);
     res.status(500).send({
@@ -133,12 +158,13 @@ export const disableCandidate = async (req, res) => {
     }
     await pool.query('UPDATE candidate SET enable = false WHERE candidate_id = ?', [id]);
     res.send({
-      message: 'Candidate deleted successfully',
-      deletedCandidate: candidate[0].name + " " + candidate[0].first_lastname + " " + candidate[0].second_lastname
+      message: 'Candidate deleted successfully'
     });
   } catch (err) {
     console.error(err);
-    res.status(500).send('Error deleting candidate');
+    res.status(500).send({
+      error: 'Error deleting candidate'
+    });
   }
 };
 
@@ -161,11 +187,12 @@ export const enableCandidate = async (req, res) => {
     }
     await pool.query('UPDATE candidate SET enable = true WHERE candidate_id = ?', [id]);
     res.send({
-      message: 'Candidate recovered successfully',
-      deletedCandidate: candidate[0].name + " " + candidate[0].first_lastname + " " + candidate[0].second_lastname
+      message: 'Candidate recovered successfully'
     });
   } catch (err) {
     console.error(err);
-    res.status(500).send('Error deleting candidate');
+    res.status(500).send({
+      error: 'Error deleting candidate'
+    });
   }
 };

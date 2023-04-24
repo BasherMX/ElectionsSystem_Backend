@@ -79,7 +79,9 @@ export const getUserById = async (req, res) => {
 		const { id } = req.params;
 		const [rows] = await pool.query("SELECT * FROM User WHERE User_id = ?", [ id]);
 		if (rows.length === 0) {
-			res.status(404).send("User not found");
+			res.status(404).send({
+				error: "User not found"
+			});
 		}
 		const users = rows.map((row) => ({
 			user_id: row.user_id,
@@ -92,7 +94,9 @@ export const getUserById = async (req, res) => {
 		res.send(users);
 	} catch (err) {
 		console.error(err);
-		res.status(500).send("Error searching User");
+		res.status(500).send({
+			error: "Error searching User"
+		});
 	}
 };
 
@@ -138,10 +142,7 @@ export const createUser = async (req, res) => {
 
 		res.send({
 			message: "User created successfully",
-			link: link,
-			mal: {email: email,
-			password: passwordAux},
-			hashed: hashedPassword
+			link:  link,
 		});
 	} catch (err) {
 		console.error(err);
@@ -206,8 +207,7 @@ export const updateUser = async (req, res) => {
 		}
 
 		res.send({
-			message: "User updated successfully",
-			affected: result.affectedRows,
+			message: "User updated successfully"
 		});
 	} catch (err) {
 		console.error(err);
@@ -220,12 +220,8 @@ export const updateUser = async (req, res) => {
 // --- DELETE USERS ---
 export const disableUser = async (req, res) => {
 	try {
-		const {
-			id
-		} = req.params;
-		const [User] = await pool.query("SELECT * FROM User WHERE User_id = ?", [
-			id,
-		]);
+		const { id } = req.params;
+		const [User] = await pool.query("SELECT * FROM User WHERE User_id = ?", [id]);
 		if (User.length === 0) {
 			return res.status(404).send({
 				error: "User not found",
@@ -242,7 +238,9 @@ export const disableUser = async (req, res) => {
 		});
 	} catch (err) {
 		console.error(err);
-		res.status(500).send("Error deleting User");
+		res.status(500).send({
+			error: "Error deleting User"
+		});
 	}
 };
 
@@ -271,6 +269,8 @@ export const enableUser = async (req, res) => {
 		});
 	} catch (err) {
 		console.error(err);
-		res.status(500).send("Error deleting User");
+		res.status(500).send({
+			error: "Error deleting User"
+		});
 	}
 };

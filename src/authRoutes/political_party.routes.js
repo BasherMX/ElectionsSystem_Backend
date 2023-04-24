@@ -1,17 +1,22 @@
 import { Router } from "express";
-import {getAllParties, getPartyById} from  "../controllers/political_party.controller.js"
+import { getAllEnableParties, getAllDisableParties, getPartyById, createParty, updateParty, disablePartys, enablePartys} from  "../controllers/political_party.controller.js"
 
 const router = Router();
 
 
-router.get('/getAll', getAllParties); //Get all
+router.get('/getAllEnable', getAllEnableParties);
 
-router.get('/getById/:id', getPartyById); //Get a candidate by ID
+router.get('/getAllDisable', getAllDisableParties);
 
+router.get('/getById/:id', getPartyById);
 
-// router.post('/create', createCandidate); //Create a candidate
+router.post('/create', createParty);
 
-// router.patch('/update/:id', updateCandidate); //Update a candidate
+router.patch('/update/:id', updateParty);
+
+router.post('/disable/:id', disablePartys);
+
+router.post('/enable/:id', enablePartys);
 
 
 export default router;

@@ -4,9 +4,9 @@ import {getUserById, createUser, updateUser, getAllEnableUsers, getAllDisableUse
 const router = Router();
 
 
-router.get('/getAllEnableUsers', getAllEnableUsers);
+router.get('/getAllEnable', getAllEnableUsers);
 
-router.get('/getAllDisableUsers', getAllDisableUsers);
+router.get('/getAllDisable', getAllDisableUsers);
 
 router.get('/getById/:id', getUserById);
 

@@ -35,13 +35,13 @@ export const verifyUserAccount = async (req, res) => {
 		//Mandar la contraseña por email y actualizarla en la base de datos ya hasheada
 
 		res.send({
-			message: "User verified successfully",
-			id:id,
-			password:password
+			message: "User verified successfully"
 		});
 	} catch (err) {
 		console.error(err);
-		res.status(500).send("Error verifing User");
+		res.status(500).send({
+			error: "Error verifing User"
+		});
 	}
 };
 
@@ -83,18 +83,16 @@ export const loginUser = async (req, res) => {
 		});
 	}
 
-
     const jwtToken = generateToken(email);
-
-
-    // Return the JWT token to the client
     res.send({
       message: 'User logged in successfully',
       ...jwtToken
     });
   } catch (err) {
     console.error(err);
-    res.status(500).send('Error logging in user');
+    res.status(500).send({
+		error: 'Error logging in user'
+	});
   }
 };
 

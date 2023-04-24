@@ -1,12 +1,17 @@
 import { Router } from "express";
-import {getCandidateById, createCandidate, updateCandidate, getAllCandidates, disableCandidate, enableCandidate} from  "../controllers/candidate.controller.js"
+import {getCandidateById, createCandidate, updateCandidate, getAllNotAssignedCandidates, getAllEnableCandidates, getAllDisableCandidates, disableCandidate, enableCandidate} from  "../controllers/candidate.controller.js"
 
 const router = Router();
 
 
-router.get('/getById/:id', getCandidateById);
 
-router.get('/getAll', getAllCandidates);
+router.get('/getAllEnable', getAllEnableCandidates);
+
+router.get('/getAllDisable', getAllDisableCandidates);
+
+router.get('/getAllNotAssigned', getAllNotAssignedCandidates);
+
+router.get('/getById/:id', getCandidateById);
 
 router.post('/create', createCandidate);
 

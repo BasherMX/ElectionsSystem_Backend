@@ -2,9 +2,22 @@ import { pool } from "../db/db.js";
 import { generateId } from "../helpers/elector.helper.js";
   
   // --- GET ALL ELECTORS ---
-  export const getAllElectors = async (req, res) => {
+  export const getAllEnableElectors = async (req, res) => {
     try {
-      const [rows] = await pool.query('SELECT * FROM elector');
+      const [rows] = await pool.query('SELECT * FROM elector WHERE enable = 1');
+      res.send(rows);
+    } catch (err) {
+      console.error(err);
+      res.status(500).send({
+        error: 'Error fetching elector'
+      });
+    }
+  }
+
+  // --- GET ALL ELECTORS ---
+  export const getAllDisableElectors = async (req, res) => {
+    try {
+      const [rows] = await pool.query('SELECT * FROM elector WHERE enable = 0');
       res.send(rows);
     } catch (err) {
       console.error(err);
@@ -23,13 +36,17 @@ import { generateId } from "../helpers/elector.helper.js";
       } = req.params;
       const [rows] = await pool.query('SELECT * FROM elector WHERE elector_id = ?', [id]);
       if (rows.length === 0) {
-        res.status(404).send('Elector not found');
+        res.status(404).send({
+          error: 'Elector not found'
+        });
       } else {
         res.send(rows[0]);
       }
     } catch (err) {
       console.error(err);
-      res.status(500).send('Error searching elector');
+      res.status(500).send({
+        error: 'Error searching elector'
+      });
     }
   }
   
@@ -55,7 +72,9 @@ import { generateId } from "../helpers/elector.helper.js";
         } else {
             await pool.query(`INSERT INTO elector (elector_id, name, first_lastname, second_lastname, date_of_birth, street, outer_number, interior_number,zip_code, state_id, picture, gender, email) 
             VALUES (?, ?, ?, ?, ?, ?,?,?,?,?,?,?,?)`, [id, name, first_lastname, second_lastname, date_of_birth, street, outer_number, interior_number,zip_code, state_id, picture, gender, email]);
-            res.send("elector created successfully");
+            res.send({
+              message: "elector created successfully"
+            });
         }
 
     } catch (err) {
@@ -83,7 +102,9 @@ import { generateId } from "../helpers/elector.helper.js";
       await pool.query('UPDATE elector SET name = IFNULL(?, name), first_lastname = IFNULL(?, first_lastname), second_lastname = IFNULL(?, second_lastname), date_of_birth = IFNULL(?, date_of_birth), street = IFNULL(?, street), outer_number = IFNULL(?, outer_number), interior_number = IFNULL(?, interior_number),zip_code = IFNULL(?, zip_code), state_id = IFNULL(?, state_id), picture = IFNULL(?, picture), gender = IFNULL(?, gender), email = IFNULL(?, email) WHERE elector_id = ?',
       [name, first_lastname, second_lastname, date_of_birth, street, outer_number, interior_number,zip_code, state_id, picture, gender, email,id]);
      
-      res.send("Candidate updated successfully");
+      res.send({
+        message:"Candidate updated successfully"
+      });
 
     } catch (err) {
       console.error(err);
@@ -109,12 +130,13 @@ import { generateId } from "../helpers/elector.helper.js";
 
       await pool.query('UPDATE elector SET enable = false WHERE elector_id = ?', [id]);
       res.send({
-        message: 'Elector deleted successfully',
-        deletedElector: elector[0].name + " " + elector[0].first_lastname + " " + elector[0].second_lastname
+        message: 'Elector deleted successfully'
       });
     } catch (err) {
       console.error(err);
-      res.status(500).send('Error deleting elector');
+      res.status(500).send({
+        error: 'Error deleting elector'
+      });
     }
   };
 
@@ -135,11 +157,12 @@ import { generateId } from "../helpers/elector.helper.js";
       await pool.query('UPDATE elector SET enable = true WHERE elector_id = ?', [id]);
       res.send({
         message: 'Elector enabled successfully',
-        enabledElector: elector[0].name + " " + elector[0].first_lastname + " " + elector[0].second_lastname
       });
     } catch (err) {
       console.error(err);
-      res.status(500).send('Error enabling elector');
+      res.status(500).send({
+        error: 'Error enabling elector'
+      });
     }
   };
   
