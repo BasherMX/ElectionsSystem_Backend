@@ -13,3 +13,8 @@ config/*.json
 # Ignorar archivos sensibles
 secrets/*
 passwords/*
+
+
+#Ignorar imagenes
+src/assets/uploads/*
+
