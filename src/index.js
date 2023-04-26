@@ -12,6 +12,7 @@ import qrCodeRoutes from "./authRoutes/qr_code.routes.js"
 import electorRoutes from "./authRoutes/elector.routes.js"
 import userRoutes from "./authRoutes/user.routes.js"
 import ballotRoutes from "./authRoutes/ballot.routes.js"
+import uploadRoutes from "./authRoutes/upload.routes.js"
 
 // --- Public Routes ---
 import userNoAuth from "./publicRoutes/noAuth.routes.js"
@@ -27,6 +28,7 @@ app.use('/politicalParty', authMiddleware, politicalPartyRoutes)
 app.use('/qrCode', authMiddleware, qrCodeRoutes)
 app.use('/elector', authMiddleware, electorRoutes)
 app.use('/ballot', authMiddleware, ballotRoutes)
+app.use('/file', authMiddleware, uploadRoutes)
 
 
 
