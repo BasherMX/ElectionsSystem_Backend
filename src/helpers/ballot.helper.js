@@ -1,4 +1,4 @@
-export function generateBallotId(stateAcronym, charge_id){
+export function generateId(stateAcronym, charge_id){
     let result = '';
     const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
     const charactersLength = 9 - (stateAcronym.length);

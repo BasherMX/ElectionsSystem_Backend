@@ -1,7 +1,7 @@
 import { pool } from "../db/db.js";
 
 import {
-  generateBallotId,
+  generateId,
   hasDuplicateNumbers,
 } from "../helpers/ballot.helper.js";
 
@@ -90,7 +90,7 @@ export const createBallot = async (req, res) => {
     );
 
     //generate id
-    const BallotId = generateBallotId(stateAcronym[0].acronym, charge_id);
+    const BallotId = generateId(stateAcronym[0].acronym, charge_id);
 
     // Check if candidate_ids is iterable
     if (!Array.isArray(candidate_ids)) {
