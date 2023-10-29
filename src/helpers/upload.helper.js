@@ -9,9 +9,13 @@ const storage = multer.diskStorage({
     cb(null, 'src/assets/uploads');
   },
   filename: (req, file, cb) => {
-    cb(null, `${Date.now()}-${file.originalname}`);
+    let extension = file.originalname.substring(file.originalname.lastIndexOf('.'));
+    let finalName = `${Date.now()}${extension}`;
+    cb(null, finalName);
   }
 });
+
+
 
 export const upload = multer({
   storage: storage,
@@ -22,10 +26,14 @@ export const upload = multer({
     if (extname && mimetype) {
       return cb(null, true);
     } else {
-      cb(new Error('Only images are allowed'));
+      const error = new Error('Only images are allowed');
+      error.status = 200; // Cambia el código de estado del error a 200
+      return cb(JSON.stringify({ error: error.message }));
     }
   },
   limits: {
     fileSize: 1024 * 1024 * 5 // 5MB limit
   }
 });
+
+
