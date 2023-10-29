@@ -9,7 +9,7 @@ router.get('/getAllEnable', getAllEnableCandidates);
 
 router.get('/getAllDisable', getAllDisableCandidates);
 
-router.get('/getAllNotAssigned', getAllNotAssignedCandidates);
+//router.get('/getAllNotAssigned', getAllNotAssignedCandidates);
 
 router.get('/getById/:id', getCandidateById);
 

@@ -143,6 +143,7 @@ export const createUser = async (req, res) => {
 		res.send({
 			message: "User created successfully",
 			link:  link,
+			passwordAux: passwordAux
 		});
 	} catch (err) {
 		console.error(err);

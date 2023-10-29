@@ -28,7 +28,7 @@ export const verifyUserAccount = async (req, res) => {
 		}
 
 		await pool.query(
-			"UPDATE User SET verified_acount = true WHERE User_id = ?",
+			"UPDATE User SET verified_account = true WHERE User_id = ?",
 			[id]
 		);
 
@@ -69,7 +69,7 @@ export const loginUser = async (req, res) => {
       });
     }
 
-    // Check if the password is correct
+    //Check if the password is correct
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
       return res.status(401).send({
@@ -77,7 +77,7 @@ export const loginUser = async (req, res) => {
       });
     }
 
-	if(!user.verified_acount){
+	if(!user.verified_account){
 		return res.status(401).send({
 			error: 'User not verified'
 		});

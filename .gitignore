@@ -7,7 +7,7 @@ dist/
 build/
 
 # Ignorar archivos de configuración local
-.env
+#.env
 config/*.json
 
 # Ignorar archivos sensibles
