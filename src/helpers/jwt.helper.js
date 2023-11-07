@@ -5,7 +5,7 @@ import 'dotenv/config';
 export function generateToken(mail){
     const payload = {
         email: mail,
-        exp: Math.floor(Date.now() / 1000) + (60 * 60 * 5) // Expiration time of 5 hours
+        exp: Math.floor(Date.now() / 1000) + (60 * 60 * 10) // Expiration time of 10 hours
 
     };
     const token = jwt.sign(payload, process.env.JWT_SECRET);

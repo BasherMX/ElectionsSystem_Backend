@@ -12,6 +12,7 @@ import politicalPartyRoutes from "./authRoutes/political_party.routes.js"
 import qrCodeRoutes from "./authRoutes/qr_code.routes.js"
 import electorRoutes from "./authRoutes/elector.routes.js"
 import userRoutes from "./authRoutes/user.routes.js"
+import voteRoutes from "./authRoutes/vote.routes.js"
 import ballotRoutes from "./authRoutes/ballot.routes.js"
 import exerciseRoutes from "./authRoutes/exercise.routes.js"
 import uploadRoutes from "./authRoutes/upload.routes.js"
@@ -25,6 +26,7 @@ app.use(express.json())
 
 // --- Auth Routes ---
 app.use('/user', authMiddleware, userRoutes)
+app.use('/vote', authMiddleware, voteRoutes)
 app.use('/candidate', authMiddleware, CandidateRoutes) 
 app.use('/politicalParty', authMiddleware, politicalPartyRoutes)
 app.use('/qrCode', authMiddleware, qrCodeRoutes)
