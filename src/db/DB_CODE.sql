@@ -1,4 +1,4 @@
-use electionsDB;
+#use electionsDB; #COMENTAR EN PROD
 
 # - - - - -  - - - - USER - - - - -  - - - - 
 CREATE TABLE User (
@@ -10,6 +10,8 @@ CREATE TABLE User (
     password VARCHAR(255),
     email VARCHAR(255)
 );
+
+
 ALTER TABLE User ADD verified_account BOOL DEFAULT FALSE;
 ALTER TABLE User ADD enable BOOL DEFAULT TRUE;
 ALTER TABLE User
@@ -20,6 +22,16 @@ ADD excercisePermission BOOLEAN DEFAULT FALSE,
 ADD politicalPartyPermission BOOLEAN DEFAULT FALSE,
 ADD usersPermission BOOLEAN DEFAULT FALSE,
 ADD verificateElectorPermission BOOLEAN DEFAULT FALSE;
+
+
+select * from user;
+#Registrar usuario administrador
+#correo: admin
+#contraseña: mNyMXFRYEVgw
+INSERT INTO User (user_id, name, first_lastname, second_lastname, user_type, password, email, verified_account, electorPermission,
+candidatePermission, ballotPermission, excercisePermission, politicalPartyPermission, usersPermission, verificateElectorPermission) 
+values ("FJDDOKJV", "admin", "admin", "admin", 1,  "$2b$10$siLEhkLcjbXqNlDpqMni1eY8YEZYFo03rLbCwOtyYbpFBdxwnSR0a", "admin",
+1,1,1,1,1,1,1,1);
 
 select * from User;
 describe user;
@@ -181,6 +193,8 @@ CREATE TABLE election_Exercise (
   FOREIGN KEY (state_id) REFERENCES state(state_id)
 );
 select * from election_exercise;
+ALTER TABLE election_Exercise ADD COLUMN expected_votes INT default 0;
+SELECT * FROM elector where state_id = 1;
 
 CREATE TABLE election_Exercise_ballot (
   id INT AUTO_INCREMENT PRIMARY KEY,
@@ -229,9 +243,6 @@ FOREIGN KEY (state_id) REFERENCES state(state_id);
 ALTER TABLE user
 ADD CONSTRAINT fk_userType_user_type
 FOREIGN KEY (user_type) REFERENCES user_type(user_type_id);
-
-
-
 
 
 

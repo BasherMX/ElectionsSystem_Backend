@@ -109,9 +109,12 @@ export const createExercise = async (req, res) => {
     );
     const ExerciseId = generateId(stateAcronym[0].acronym, election_type_id);
 
+    const totalElectores = await pool.query('SELECT * FROM elector WHERE state_id = ?', [state_id]);
+    const electorCount = totalElectores[0].length;
+
     await pool.query(
-      "INSERT INTO election_Exercise (exercise_id, election_type_id,  state_id, date) VALUES (?, ?, ?, ?)",
-      [ExerciseId, election_type_id, state_id, date]
+      "INSERT INTO election_Exercise (exercise_id, election_type_id,  state_id, date, expected_votes) VALUES (?, ?, ?, ?,?)",
+      [ExerciseId, election_type_id, state_id, date, electorCount]
     );
     res.send({
       message: "Ejercicio creado correctamente",

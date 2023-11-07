@@ -4,8 +4,11 @@ import {
 import {
 	GenerateRandomPassword,
 	generateRandomId,
+	sendUserEmail
 } from "../helpers/user.helper.js";
 import bcrypt from 'bcrypt';
+import 'dotenv/config';
+
 
 // --- GET ALL ENABLE USERS ---
 export const getAllEnableUsers = async (req, res) => {
@@ -128,7 +131,6 @@ export const createUser = async (req, res) => {
 		const passwordAux = GenerateRandomPassword();
 		const salt = await bcrypt.genSalt(10);
 		const hashedPassword = await bcrypt.hash(passwordAux, salt);
-		// const currentUrl = window.location.hostname;
 
 		await pool.query(
 			"INSERT INTO User (user_id,name, first_lastname, second_lastname, user_type, password, email) VALUES (?, ?, ?, ?, ?, ?,?)",
@@ -138,8 +140,11 @@ export const createUser = async (req, res) => {
 		updatePermissions(user_id, user_type);
 
 		//send confirmation link by email like:
-		const link = `http://localhost:3000/public/verifyAccount/${user_id}`;
+		const urlFront = process.env.LINK_FRONT + "/public/verifyAccount/";
+		const link = `${urlFront}${user_id}`;
 
+		sendUserEmail(link, email,passwordAux);
+		
 		res.send({
 			message: "User created successfully",
 			link:  link,
@@ -152,6 +157,7 @@ export const createUser = async (req, res) => {
 		});
 	}
 };
+
 
 // - - - UPDATE PERMISSIONS - - -
 function updatePermissions(user_id, user_type) {
