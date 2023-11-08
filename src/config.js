@@ -1,12 +1,35 @@
-//for tests
-
-
-// import { config } from 'dotenv';
-// config();
-
-
-// console.log("user: " + process.env.DB_USER);
-// console.log("passw: " + process.env.DB_PASSWORD);
-// console.log("host: " + process.env.DB_HOST);
-// console.log("port: " + process.env.DB_PORT);
-// console.log("dtbs: " + process.env.DB_DATABASE);
+// {
+//     "charge_id": 3,
+//     "state_id": 1,
+//     "election_date": "2023-10-28",
+//     "candidates":[
+//         {
+//             "name": "Maria Teresa",
+//             "first_lastname": "Jimenez",
+//             "second_lastname": "Esquivel",
+//             "pseudonym": "Tere Jimenez",
+//             "party_id": 1
+//         },
+//         {
+//             "name": "Maria Teresa",
+//             "first_lastname": "Jimenez",
+//             "second_lastname": "Esquivel",
+//             "pseudonym": "Tere Jimenez",
+//             "party_id": 1
+//         },
+//         {
+//             "name": "Maria Teresa",
+//             "first_lastname": "Jimenez",
+//             "second_lastname": "Esquivel",
+//             "pseudonym": "Tere Jimenez",
+//             "party_id": 1
+//         },
+//         {
+//             "name": "Maria Teresa",
+//             "first_lastname": "Jimenez",
+//             "second_lastname": "Esquivel",
+//             "pseudonym": "Tere Jimenez",
+//             "party_id": 1
+//         }
+//     ]
+// }

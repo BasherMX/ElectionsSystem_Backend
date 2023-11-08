@@ -7,7 +7,6 @@ import { authMiddleware } from "./middleweres/middleware.js";
 
 
 // --- Auth Routes ---
-import CandidateRoutes from "./authRoutes/candidate.routes.js"
 import politicalPartyRoutes from "./authRoutes/political_party.routes.js"
 import qrCodeRoutes from "./authRoutes/qr_code.routes.js"
 import electorRoutes from "./authRoutes/elector.routes.js"
@@ -25,15 +24,24 @@ app.use(express.json())
 
 
 // --- Auth Routes ---
-app.use('/user', authMiddleware, userRoutes)
-app.use('/vote', authMiddleware, voteRoutes)
-app.use('/candidate', authMiddleware, CandidateRoutes) 
-app.use('/politicalParty', authMiddleware, politicalPartyRoutes)
-app.use('/qrCode', authMiddleware, qrCodeRoutes)
-app.use('/elector', authMiddleware, electorRoutes)
-app.use('/ballot', authMiddleware, ballotRoutes)
-app.use('/exercise', authMiddleware, exerciseRoutes)
-app.use('/file', authMiddleware, uploadRoutes)
+// app.use('/user', authMiddleware, userRoutes)
+// app.use('/vote', authMiddleware, voteRoutes)
+// app.use('/politicalParty', authMiddleware, politicalPartyRoutes)
+// app.use('/qrCode', authMiddleware, qrCodeRoutes)
+// app.use('/elector', authMiddleware, electorRoutes)
+// app.use('/ballot', authMiddleware, ballotRoutes)
+// app.use('/exercise', authMiddleware, exerciseRoutes)
+// app.use('/file', authMiddleware, uploadRoutes)
+
+// -- Auth Routes for DEV
+app.use('/user', userRoutes)
+app.use('/vote', voteRoutes)
+app.use('/politicalParty', politicalPartyRoutes)
+app.use('/qrCode', qrCodeRoutes)
+app.use('/elector', electorRoutes)
+app.use('/ballot', ballotRoutes)
+app.use('/exercise', exerciseRoutes)
+app.use('/file', uploadRoutes)
 
 
 

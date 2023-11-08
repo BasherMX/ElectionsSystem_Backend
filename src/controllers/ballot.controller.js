@@ -58,137 +58,108 @@ export const getBallotById = async (req, res) => {
 
 export const createBallot = async (req, res) => {
   try {
-    const { charge_id, state_id, candidate_ids, election_date } = req.body;
+    const { charge_id, election_date, exercise_id, candidates } = req.body;
 
-    // Check for missing required fields
-    const requiredFields = ["charge_id","state_id","candidate_ids","election_date",];
+    // Check for existing ballot with the same charge_id and exercise_id
+    const [existingBallot] = await pool.query("SELECT * FROM election_exercise_ballot WHERE charge_id = ? AND exercise_id = ?", [charge_id, exercise_id]);
+    if (existingBallot.length > 0) {
+      return res.status(400).send({ error: `A ballot already exists for this charge` });
+    }
+
+    // Check if the charge_id exists
+    const [existingCharge] = await pool.query("SELECT * FROM charge WHERE charge_id = ?", [charge_id]);
+    if (existingCharge.length === 0) {
+      return res.status(404).send({ error: `Charge does not exist` });
+    }
+
+    // Check if the charge_id exists
+    const [existingExercise] = await pool.query("SELECT * FROM election_exercise WHERE exercise_id = ?", [exercise_id]);
+    if (existingExercise.length === 0) {
+      return res.status(404).send({ error: `Exercise does not exist` });
+    }
+
+    // Check for missing required fields in the request
+    const requiredFields = ["charge_id", "election_date", "exercise_id", "candidates"];
     const missingFields = requiredFields.filter((field) => !req.body[field]);
-
     if (missingFields.length > 0) {
       const error = `The following fields are required: ${missingFields.join(", ")}`;
-      return res.status(400).send({
-        error,
-      });
+      return res.status(400).send({ error });
     }
 
-    //chek if not exist the same ballot
-    const [checkBallot] = await pool.query(
-      "SELECT * FROM ballot Where state_id = ? AND candidates_ids = ? AND election_date = ?",
-      [state_id, JSON.stringify(candidate_ids), election_date]
-    );
-    if (checkBallot.length != 0) {
-      const error = `Ya existe una boleta con estos datos`;
-      return res.status(400).send({
-        error,
-      });
-    }
+    const connection = await pool.getConnection();
+    await connection.beginTransaction();
 
-    //getAcronym by state_id
-    const [stateAcronym] = await pool.query(
-      "SELECT acronym FROM state Where state_id = ?",
-      [state_id]
-    );
+    try {
+      const partyIds = new Set();
+      const candidateNames = new Set();
 
-    //generate id
-    const BallotId = generateId(stateAcronym[0].acronym, charge_id);
+      for (const candidate of candidates) {
+        const { name, first_lastname, second_lastname, party_id } = candidate;
 
-    // Check if candidate_ids is iterable
-    if (!Array.isArray(candidate_ids)) {
-      return res.status(400).send({
-        error: "candidate_ids must be an array",
-      });
-    }
+        if (partyIds.has(party_id)) {
+          throw new Error(`Duplicate party ID ${party_id} found`);
+        }
+        partyIds.add(party_id);
 
-    // Check for duplicate candidates
-    if (hasDuplicateNumbers(candidate_ids)) {
-      return res.status(400).send({
-        error: "existen candidatos duplicados",
-      });
-    }
+        const fullName = `${name} ${first_lastname} ${second_lastname}`;
+        if (candidateNames.has(fullName)) {
+          throw new Error(`Duplicate candidate name ${fullName} found`);
+        }
+        candidateNames.add(fullName);
+      }
 
-    // Get and Check duplicate party_ids
-    const partyIds = [];
-    for (const candidate_id of candidate_ids) {
-      const [rows] = await pool.query(
-        "SELECT * FROM Candidate WHERE candidate_id = ? AND enable = 1",
-        [candidate_id]
+      const stateAcronymQuery = await pool.query(
+        "SELECT ee.state_id, s.acronym FROM election_exercise as ee JOIN state as s ON ee.state_id = s.state_id WHERE ee.exercise_id = ?",
+        [exercise_id]
       );
-      if (rows.length === 0) {
-        const error = `Candidate with ID ${candidate_id} does not exist or is disable`;
-        return res.status(400).send({
-          error,
-        });
+      const [stateAcronym] = stateAcronymQuery;
+      const BallotId = generateId(stateAcronym[0].acronym, charge_id);
+      console.log("Ballotid creado: " + BallotId);
+
+      const [result] = await connection.query(
+        "INSERT INTO Ballot (ballot_id, charge_id, election_date) VALUES (?, ?, ?)",
+        [BallotId, charge_id, election_date]
+      );
+      if (result.affectedRows === 0) {
+        throw new Error("Error creating ballot");
       }
 
-      const party_id = rows[0].party_id;
-      if (partyIds.includes(party_id)) {
-        const error = `Candidate ${rows[0].name} have duplicate party ID`;
-        return res.status(400).send({
-          error,
-        });
-      }
+      await connection.query("INSERT INTO election_exercise_ballot (ballot_id, exercise_id, charge_id) VALUES (?, ?, ?)", [BallotId, exercise_id, charge_id]);
 
-      const status = rows[0].status;
-      if (status === 1) {
-        const error = `Candidate ${rows[0].name} it's already in a ballot`;
-        return res.status(400).send({
-          error,
-        });
-      }
-      partyIds.push(party_id);
-    }
+      for (const candidate of candidates) {
+        const { name, first_lastname, second_lastname, pseudonym, party_id } = candidate;
+        /*const [candidateResult] = await connection.query(
+          "SELECT * FROM candidate WHERE name = ? AND first_lastname = ? AND second_lastname = ?",
+          [name, first_lastname, second_lastname]
+        );
+        if (candidateResult.length > 0) {
+          throw new Error(`Candidate ${name} ${first_lastname} ${second_lastname} already exists`);
+        } else {*/
+          const [candidateInsertResult] = await connection.query(
+            "INSERT INTO candidate (name, first_lastname, second_lastname, pseudonym, party_id) VALUES (?, ?, ?, ?, ?)",
+            [name, first_lastname, second_lastname, pseudonym, party_id]
+          );
+          const candidateId = candidateInsertResult.insertId;
+          await connection.query("INSERT INTO ballot_candidate (ballot_id, candidate_id) VALUES (?, ?)", [BallotId, candidateId]);
+        }
+      //}
 
-    //Create a ballot
-    const [result] = await pool.query(
-      "INSERT INTO Ballot (ballot_id, charge_id, state_id, candidates_ids, election_date)  VALUES (?, ?, ?,?, ?)",
-      [
-        BallotId,
-        charge_id,
-        state_id,
-        JSON.stringify(candidate_ids),
-        election_date,
-      ]
-    );
-    if (result.affectedRows === 0) {
-      return res.status(400).send({
-        error: "Error creating ballot",
+      await connection.commit();
+
+      res.send({
+        message: "Ballot and candidates created successfully",
       });
+    } catch (error) {
+      await connection.rollback();
+      console.error(error);
+      return res.status(400).send({ error: error.message });
+    } finally {
+      connection.release();
     }
-
-    // Create a relate ballot_candidate
-    for (const candidate_id of candidate_ids) {
-      const [rows] = await pool.query(
-        "INSERT INTO ballot_candidate (ballot_id, candidate_id) VALUES (?, ?)",
-        [BallotId, candidate_id]
-      );
-      if (rows.affectedRows === 0) {
-        const error = `Hubo un error en la creacion de la boleta Ballot_candidate`;
-        await pool.query("DELETE FROM ballot WHERE ballot_id = ?", [BallotId]);
-        return res.status(400).send({
-          error,
-        });
-      }
-
-      const [upsrows] = await pool.query(
-        "UPDATE candidate set status = true where candidate_id = ?",
-        [candidate_id]
-      );
-      if (upsrows.affectedRows === 0) {
-        const error = `Exist an error`;
-        return res.status(400).send({
-          error,
-        });
-      }
-    }
-
-    res.send({
-      message: "Ballot created successfully",
-    });
-
   } catch (err) {
     console.error(err);
     res.status(500).send({
-      error: "Error creating ballot",
+      error: "Error creating ballot and candidates",
     });
   }
 };

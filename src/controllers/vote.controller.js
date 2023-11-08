@@ -4,7 +4,7 @@ import {
 import 'dotenv/config';
 
 
-// --- GET ALL ENABLE USERS ---
+// --- Verify can vote ---
 export const verifyCanVotate = async (req, res) => {
 	try {
 		const { elector_id, exercise_id } = req.body;
@@ -67,4 +67,82 @@ export const verifyCanVotate = async (req, res) => {
 
 
 
-
+// --- getBallotsByExerciseId ---
+export const getBallotsByExerciseId = async (req, res) => {
+	try {
+	  const { exercise_id } = req.body;
+	  const requiredFields = ["exercise_id"];
+	  const missingFields = requiredFields.filter((field) => !req.body[field]);
+  
+	  if (missingFields.length > 0) {
+		const err = `The following fields are required: ${missingFields.join(", ")}`;
+		return res.status(400).send({ error: err });
+	  }
+  
+	  const [[ExerciseResults]] = await pool.query(
+		"SELECT * FROM election_exercise WHERE exercise_id = ?",
+		[exercise_id]
+	  );
+  
+	  if (!ExerciseResults) {
+		return res.status(400).send({ error: "This Exercise doesn't exist" });
+	  }
+  
+	  const [ExerciseBallotResults] = await pool.query(
+		"SELECT ballot_id FROM election_exercise_ballot WHERE exercise_id = ?",
+		[exercise_id]
+	  );
+  
+	  if (!ExerciseBallotResults || ExerciseBallotResults.length === 0) {
+		return res.status(400).send({ error: "No ballots found for this exercise" });
+	  }
+  
+	  const ballotIds = ExerciseBallotResults.map((result) => result.ballot_id);
+  
+	  const [BallotResults] = await pool.query(
+		`SELECT b.*, c.* FROM ballot b 
+		INNER JOIN ballot_candidate bc ON b.ballot_id = bc.ballot_id
+		INNER JOIN candidate c ON bc.candidate_id = c.candidate_id
+		WHERE b.ballot_id IN (${ballotIds.map((id) => `'${id}'`).join(', ')})`
+	  );
+  
+	  if (!BallotResults || BallotResults.length === 0) {
+		return res.status(400).send({ error: "No ballots found for the provided exercise" });
+	  }
+  
+	  const data = {};
+	  BallotResults.forEach((row) => {
+		if (!data[row.ballot_id]) {
+		  data[row.ballot_id] = {
+			ballot_id: row.ballot_id,
+			charge_id: row.charge_id,
+			election_date: row.election_date,
+			status: row.status,
+			winnerCandidate_id: row.winnerCandidate_id,
+			totalVotes: row.totalVotes,
+			anuledVotes: row.anuledVotes,
+			candidates: [],
+		  };
+		}
+		data[row.ballot_id].candidates.push({
+		  candidate_id: row.candidate_id,
+		  name: row.name,
+		  first_lastname: row.first_lastname,
+		  second_lastname: row.second_lastname,
+		  pseudonym: row.pseudonym,
+		  party_id: row.party_id,
+		  enable: row.enable,
+		  status: row.status,
+		  totalVotes: row.totalVotes,
+		});
+	  });
+  
+	  res.send(JSON.stringify(Object.values(data)));
+	} catch (err) {
+	  console.error(err);
+	  res.status(500).send({
+		error: "Error retrieving ballots for the given exercise",
+	  });
+	}
+  };
+  
