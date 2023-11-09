@@ -1,4 +1,5 @@
 import express from "express";
+import cors from "cors"; // Importa el paquete cors
 import './config.js'
 
 
@@ -21,6 +22,7 @@ import realTimeRoutes from "./authRoutes/realTime.routes.js"
 import userNoAuth from "./publicRoutes/noAuth.routes.js"
 
 const app = express()
+app.use(cors()); // Utiliza el middleware de cors
 app.use(express.json())
 
 
@@ -30,7 +32,7 @@ app.use(express.json())
 // app.use('/realTime', authMiddleware, realTimeRoutes)
 // app.use('/politicalParty', authMiddleware, politicalPartyRoutes)
 // app.use('/qrCode', authMiddleware, qrCodeRoutes)
-app.use('/elector', authMiddleware, electorRoutes)
+// app.use('/elector', authMiddleware, electorRoutes)
 // app.use('/ballot', authMiddleware, ballotRoutes)
 // app.use('/exercise', authMiddleware, exerciseRoutes)
 // app.use('/file', authMiddleware, uploadRoutes)
