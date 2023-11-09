@@ -15,6 +15,7 @@ import voteRoutes from "./authRoutes/vote.routes.js"
 import ballotRoutes from "./authRoutes/ballot.routes.js"
 import exerciseRoutes from "./authRoutes/exercise.routes.js"
 import uploadRoutes from "./authRoutes/upload.routes.js"
+import realTimeRoutes from "./authRoutes/realTime.routes.js"
 
 // --- Public Routes ---
 import userNoAuth from "./publicRoutes/noAuth.routes.js"
@@ -26,9 +27,10 @@ app.use(express.json())
 // --- Auth Routes ---
 // app.use('/user', authMiddleware, userRoutes)
 // app.use('/vote', authMiddleware, voteRoutes)
+// app.use('/realTime', authMiddleware, realTimeRoutes)
 // app.use('/politicalParty', authMiddleware, politicalPartyRoutes)
 // app.use('/qrCode', authMiddleware, qrCodeRoutes)
-// app.use('/elector', authMiddleware, electorRoutes)
+app.use('/elector', authMiddleware, electorRoutes)
 // app.use('/ballot', authMiddleware, ballotRoutes)
 // app.use('/exercise', authMiddleware, exerciseRoutes)
 // app.use('/file', authMiddleware, uploadRoutes)
@@ -36,6 +38,7 @@ app.use(express.json())
 // -- Auth Routes for DEV
 app.use('/user', userRoutes)
 app.use('/vote', voteRoutes)
+app.use('/realTime', realTimeRoutes)
 app.use('/politicalParty', politicalPartyRoutes)
 app.use('/qrCode', qrCodeRoutes)
 app.use('/elector', electorRoutes)

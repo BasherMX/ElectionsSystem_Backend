@@ -70,79 +70,182 @@ export const verifyCanVotate = async (req, res) => {
 // --- getBallotsByExerciseId ---
 export const getBallotsByExerciseId = async (req, res) => {
 	try {
-	  const { exercise_id } = req.body;
-	  const requiredFields = ["exercise_id"];
-	  const missingFields = requiredFields.filter((field) => !req.body[field]);
-  
-	  if (missingFields.length > 0) {
-		const err = `The following fields are required: ${missingFields.join(", ")}`;
-		return res.status(400).send({ error: err });
-	  }
-  
-	  const [[ExerciseResults]] = await pool.query(
-		"SELECT * FROM election_exercise WHERE exercise_id = ?",
-		[exercise_id]
-	  );
-  
-	  if (!ExerciseResults) {
-		return res.status(400).send({ error: "This Exercise doesn't exist" });
-	  }
-  
-	  const [ExerciseBallotResults] = await pool.query(
-		"SELECT ballot_id FROM election_exercise_ballot WHERE exercise_id = ?",
-		[exercise_id]
-	  );
-  
-	  if (!ExerciseBallotResults || ExerciseBallotResults.length === 0) {
-		return res.status(400).send({ error: "No ballots found for this exercise" });
-	  }
-  
-	  const ballotIds = ExerciseBallotResults.map((result) => result.ballot_id);
-  
-	  const [BallotResults] = await pool.query(
-		`SELECT b.*, c.* FROM ballot b 
-		INNER JOIN ballot_candidate bc ON b.ballot_id = bc.ballot_id
-		INNER JOIN candidate c ON bc.candidate_id = c.candidate_id
-		WHERE b.ballot_id IN (${ballotIds.map((id) => `'${id}'`).join(', ')})`
-	  );
-  
-	  if (!BallotResults || BallotResults.length === 0) {
-		return res.status(400).send({ error: "No ballots found for the provided exercise" });
-	  }
-  
-	  const data = {};
-	  BallotResults.forEach((row) => {
-		if (!data[row.ballot_id]) {
-		  data[row.ballot_id] = {
-			ballot_id: row.ballot_id,
-			charge_id: row.charge_id,
-			election_date: row.election_date,
-			status: row.status,
-			winnerCandidate_id: row.winnerCandidate_id,
-			totalVotes: row.totalVotes,
-			anuledVotes: row.anuledVotes,
-			candidates: [],
-		  };
+		const { exercise_id } = req.body;
+		const requiredFields = ["exercise_id"];
+		const missingFields = requiredFields.filter((field) => !req.body[field]);
+
+		if (missingFields.length > 0) {
+			const err = `The following fields are required: ${missingFields.join(", ")}`;
+			return res.status(400).send({ error: err });
 		}
-		data[row.ballot_id].candidates.push({
-		  candidate_id: row.candidate_id,
-		  name: row.name,
-		  first_lastname: row.first_lastname,
-		  second_lastname: row.second_lastname,
-		  pseudonym: row.pseudonym,
-		  party_id: row.party_id,
-		  enable: row.enable,
-		  status: row.status,
-		  totalVotes: row.totalVotes,
+
+		const [[ExerciseResults]] = await pool.query(
+			"SELECT ee.*, s.name as state_name FROM election_exercise ee " +
+			"INNER JOIN state s ON ee.state_id = s.state_id " +
+			"WHERE ee.exercise_id = ?",
+			[exercise_id]
+		);
+
+		if (!ExerciseResults) {
+			return res.status(400).send({ error: "This Exercise doesn't exist" });
+		}
+
+		const [ExerciseBallotResults] = await pool.query(
+			"SELECT ballot_id FROM election_exercise_ballot WHERE exercise_id = ?",
+			[exercise_id]
+		);
+
+		if (!ExerciseBallotResults || ExerciseBallotResults.length === 0) {
+			return res.status(400).send({ error: "No ballots found for this exercise" });
+		}
+
+		const ballotIds = ExerciseBallotResults.map((result) => result.ballot_id);
+
+		const [BallotResults] = await pool.query(
+			`SELECT b.*, c.*, pp.img_logo as party_image, pp.name as party_name, ch.name as charge_name FROM ballot b 
+			INNER JOIN ballot_candidate bc ON b.ballot_id = bc.ballot_id
+			INNER JOIN candidate c ON bc.candidate_id = c.candidate_id
+			INNER JOIN political_party pp ON c.party_id = pp.party_id
+			INNER JOIN charge ch ON b.charge_id = ch.charge_id
+			WHERE b.ballot_id IN (${ballotIds.map((id) => `'${id}'`).join(', ')})`
+		);
+
+		if (!BallotResults || BallotResults.length === 0) {
+			return res.status(400).send({ error: "No ballots found for the provided exercise" });
+		}
+
+		const data = {};
+		BallotResults.forEach((row) => {
+			if (!data[row.ballot_id]) {
+				data[row.ballot_id] = {
+					ballot_id: row.ballot_id,
+					charge_name: row.charge_name,
+					state_name: ExerciseResults.state_name,
+					candidates: [],
+				};
+			}
+			data[row.ballot_id].candidates.push({
+				candidate_id: row.candidate_id,
+				completeName: row.name + " " + row.first_lastname + " " + row.second_lastname,
+				pseudonym: row.pseudonym,
+				party_image: row.party_image,
+				party_name: row.party_name,
+			});
 		});
-	  });
+
+		res.send(Object.values(data));
+	} catch (err) {
+		console.error(err);
+		res.status(500).send({
+			error: "Error retrieving ballots for the given exercise",
+		});
+	}
+};
+
+
+
+// --- voteForCandidate ---
+export const voteForCandidate = async (req, res) => {
+	try {
+	  const { elector_id, exercise_id, votes } = req.body; // Se espera que votes sea un array de votos
+	  if (!Array.isArray(votes)) {
+		return res.status(400).send({ error: "Votes should be an array." });
+	  }
   
-	  res.send(JSON.stringify(Object.values(data)));
+	  // Verificar si el elector ya ha votado en este ejercicio electoral
+	  const [existingVoteResults] = await pool.query(
+		"SELECT * FROM exercise_elector_vote WHERE elector_id = ? AND exercise_id = ?",
+		[elector_id, exercise_id]
+	  );
+  
+	  if (existingVoteResults.length > 0) {
+		return res.status(400).send({ error: "Elector has already voted in this exercise." });
+	  }
+  
+	  for (const vote of votes) {
+		const { ballot_id, candidate_id, isSpoiledVote } = vote;
+		const requiredFields = ["ballot_id", "candidate_id"];
+		const missingFields = requiredFields.filter((field) => !vote[field]);
+  
+		if (missingFields.length > 0) {
+		  const err = `The following fields are required: ${missingFields.join(", ")}`;
+		  return res.status(400).send({ error: err });
+		}
+  
+		// Verificar si el candidato pertenece a la boleta específica
+		const [candidateResults] = await pool.query(
+		  "SELECT * FROM ballot_candidate WHERE ballot_id = ? AND candidate_id = ?",
+		  [ballot_id, candidate_id]
+		);
+  
+		if (candidateResults.length === 0) {
+		  return res.status(400).send({ error: `Candidate ${candidate_id} does not belong to this ballot.` });
+		}
+  
+		if (!isSpoiledVote) {
+		  await pool.query(
+			"UPDATE candidate SET totalVotes = totalVotes + 1 WHERE candidate_id = ?",
+			[candidate_id]
+		  );
+  
+		  // Actualizar el totalVotes solo si el voto no está anulado
+		  await pool.query(
+			"UPDATE ballot SET totalVotes = totalVotes + 1 WHERE ballot_id = ?",
+			[ballot_id]
+		  );
+		} else {
+		  await pool.query(
+			"UPDATE ballot SET anuledVotes = anuledVotes + 1 WHERE ballot_id = ?",
+			[ballot_id]
+		  );
+		}
+		await updateWinnerCandidate(ballot_id);
+	  }
+  
+	  // Crear la relación entre el elector y el ejercicio electoral
+	  await pool.query(
+		"INSERT INTO exercise_elector_vote (elector_id, exercise_id) VALUES (?, ?)",
+		[elector_id, exercise_id]
+	  );
+  
+	  res.send("Votes recorded successfully.");
 	} catch (err) {
 	  console.error(err);
 	  res.status(500).send({
-		error: "Error retrieving ballots for the given exercise",
+		error: "Error recording votes.",
 	  });
 	}
   };
+
   
+// actualizar el candidato ganador de una boleta específica
+const updateWinnerCandidate = async (ballot_id) => {
+	try {
+	  const [candidateResults] = await pool.query(
+		"SELECT candidate_id FROM ballot_candidate WHERE ballot_id = ?",
+		[ballot_id]
+	  );
+	
+	  let maxVotes = 0;
+	  let winnerCandidateId = 0;
+	
+	  for (const result of candidateResults) {
+		const [candidate] = await pool.query(
+		  "SELECT * FROM candidate WHERE candidate_id = ?",
+		  [result.candidate_id]
+		);
+
+		if (candidate[0].totalVotes > maxVotes) {
+		  maxVotes = candidate[0].totalVotes;
+		  winnerCandidateId = candidate[0].candidate_id;
+		}
+	  }
+	
+	  await pool.query(
+		"UPDATE ballot SET winnerCandidate_id = ? WHERE ballot_id = ?",
+		[winnerCandidateId, ballot_id]
+	  );
+	} catch (err) {
+	  console.error(err);
+	}
+};

@@ -58,7 +58,15 @@ export const getBallotById = async (req, res) => {
 
 export const createBallot = async (req, res) => {
   try {
-    const { charge_id, election_date, exercise_id, candidates } = req.body;
+    const { charge_id, exercise_id, candidates } = req.body;
+
+    // Check for missing required fields in the request
+    const requiredFields = ["charge_id", "exercise_id", "candidates"];
+    const missingFields = requiredFields.filter((field) => !req.body[field]);
+    if (missingFields.length > 0) {
+      const error = `The following fields are required: ${missingFields.join(", ")}`;
+      return res.status(400).send({ error });
+    }
 
     // Check for existing ballot with the same charge_id and exercise_id
     const [existingBallot] = await pool.query("SELECT * FROM election_exercise_ballot WHERE charge_id = ? AND exercise_id = ?", [charge_id, exercise_id]);
@@ -78,13 +86,7 @@ export const createBallot = async (req, res) => {
       return res.status(404).send({ error: `Exercise does not exist` });
     }
 
-    // Check for missing required fields in the request
-    const requiredFields = ["charge_id", "election_date", "exercise_id", "candidates"];
-    const missingFields = requiredFields.filter((field) => !req.body[field]);
-    if (missingFields.length > 0) {
-      const error = `The following fields are required: ${missingFields.join(", ")}`;
-      return res.status(400).send({ error });
-    }
+    
 
     const connection = await pool.getConnection();
     await connection.beginTransaction();
@@ -114,11 +116,10 @@ export const createBallot = async (req, res) => {
       );
       const [stateAcronym] = stateAcronymQuery;
       const BallotId = generateId(stateAcronym[0].acronym, charge_id);
-      console.log("Ballotid creado: " + BallotId);
 
       const [result] = await connection.query(
-        "INSERT INTO Ballot (ballot_id, charge_id, election_date) VALUES (?, ?, ?)",
-        [BallotId, charge_id, election_date]
+        "INSERT INTO Ballot (ballot_id, charge_id) VALUES (?, ?)",
+        [BallotId, charge_id]
       );
       if (result.affectedRows === 0) {
         throw new Error("Error creating ballot");
@@ -128,13 +129,6 @@ export const createBallot = async (req, res) => {
 
       for (const candidate of candidates) {
         const { name, first_lastname, second_lastname, pseudonym, party_id } = candidate;
-        /*const [candidateResult] = await connection.query(
-          "SELECT * FROM candidate WHERE name = ? AND first_lastname = ? AND second_lastname = ?",
-          [name, first_lastname, second_lastname]
-        );
-        if (candidateResult.length > 0) {
-          throw new Error(`Candidate ${name} ${first_lastname} ${second_lastname} already exists`);
-        } else {*/
           const [candidateInsertResult] = await connection.query(
             "INSERT INTO candidate (name, first_lastname, second_lastname, pseudonym, party_id) VALUES (?, ?, ?, ?, ?)",
             [name, first_lastname, second_lastname, pseudonym, party_id]
