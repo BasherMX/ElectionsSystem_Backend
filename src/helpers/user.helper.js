@@ -42,7 +42,7 @@ export async function sendUserEmail(link, email, pass){
   await transporter.sendMail({
     from: `"Plataforma WEB INE" <${process.env.USR_EMAIL}>`,
     to: email,
-    subject: "Verificación de cuenta",
+    subject: "Verifica tu cuenta",
     html: `
     <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
         <h1 style="color: #354052; text-align: center;">Verificación de cuenta</h1>
@@ -56,8 +56,6 @@ export async function sendUserEmail(link, email, pass){
     </div>
 `
   });
-
-
 }
 
 export async function VerifiedsendUserEmail(email){

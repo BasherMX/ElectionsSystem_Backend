@@ -72,19 +72,23 @@ export const loginUser = async (req, res) => {
       });
     }
 
+	if(!user.verified_account){
+		return res.status(401).send({
+			error: 'User not verified'
+		});
+	}
+
+
     //Check if the password is correct
     const isMatch = await bcrypt.compare(password, user.password);
+
+
     if (!isMatch) {
       return res.status(401).send({
         error: 'Invalid credentials'
       });
     }
 
-	if(!user.verified_account){
-		return res.status(401).send({
-			error: 'User not verified'
-		});
-	}
 
     const jwtToken = generateToken(email);
     res.send({

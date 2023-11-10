@@ -127,10 +127,23 @@ export const createUser = async (req, res) => {
 			});
 		}
 
+		const [resultEmail] = await pool.query(
+			"SELECT * FROM User WHERE email = ?",
+			[email]
+		);
+		if (resultEmail.length > 0) {
+			return res.status(400).send({
+				error: "Ya existe un usuario con este correo",
+			});
+		}
+
 		const user_id = generateRandomId();
 		const passwordAux = GenerateRandomPassword();
 		const salt = await bcrypt.genSalt(10);
 		const hashedPassword = await bcrypt.hash(passwordAux, salt);
+
+		console.log("aux:" + passwordAux);
+		console.log("hash:" + hashedPassword);
 
 		await pool.query(
 			"INSERT INTO User (user_id,name, first_lastname, second_lastname, user_type, password, email) VALUES (?, ?, ?, ?, ?, ?,?)",
@@ -140,7 +153,7 @@ export const createUser = async (req, res) => {
 		updatePermissions(user_id, user_type);
 
 		//send confirmation link by email like:
-		const urlFront = process.env.LINK_FRONT + "/public/verifyAccount/";
+		const urlFront = process.env.LINK_FRONT + "/admin/verifyAccount/";
 		const link = `${urlFront}${user_id}`;
 
 		sendUserEmail(link, email,passwordAux);

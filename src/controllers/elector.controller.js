@@ -1,5 +1,6 @@
 import { pool } from "../db/db.js";
 import { generateId } from "../helpers/elector.helper.js";
+import { sendElectorCredentialbyEmail } from '../helpers/elector.helper.js'
   
   // --- GET ALL ELECTORS ---
   export const getAllEnableElectors = async (req, res) => {
@@ -76,6 +77,14 @@ import { generateId } from "../helpers/elector.helper.js";
               message: "elector created successfully"
             });
         }
+
+        const data ={
+          id, name, first_lastname, second_lastname, date_of_birth, street, outer_number, interior_number,zip_code, state_id, picture, gender, email
+
+        };
+
+        //enviar INE por correo:
+        sendElectorCredentialbyEmail(data);
 
     } catch (err) {
       console.error(err);
