@@ -11,7 +11,7 @@ export const getAllEnableExercises = async (req, res) => {
   } catch (err) {
     console.error(err);
     res.status(500).send({
-      error: "Error fetching election Exercises",
+      error: "Error al buscar ejercicios electorales",
     });
   }
 };
@@ -27,7 +27,7 @@ export const getAllDisableExercises = async (req, res) => {
   } catch (err) {
     console.error(err);
     res.status(500).send({
-      error: "Error fetching election Exercises",
+      error: "Error al buscar ejercicios electorales",
     });
   }
 };
@@ -43,7 +43,7 @@ export const getAllNotAssignedExercises = async (req, res) => {
   } catch (err) {
     console.error(err);
     res.status(500).send({
-      error: "Error fetching election Exercises",
+      error: "Error al buscar ejercicios electorales",
     });
   }
 };
@@ -59,7 +59,7 @@ export const getExerciseById = async (req, res) => {
     );
     if (rows.length === 0) {
       res.status(404).send({
-        error: "election Exercise not found",
+        error: "Ejercicio electoral no encontrado",
       });
     } else {
       res.send(rows[0]);
@@ -67,7 +67,7 @@ export const getExerciseById = async (req, res) => {
   } catch (err) {
     console.error(err);
     res.status(500).send({
-      error: "Error searching election Exercise",
+      error: "Error al buscar ejercicio electoral",
     });
   }
 };
@@ -139,7 +139,7 @@ export const updateExercise = async (req, res) => {
     if (candidate.length === 0) {
       return res
         .status(404)
-        .send({ error: "Ejercicio Electoral no encontrado" });
+        .send({ error: "Ejercicio electoral no encontrado" });
     }
 
     const [result] = await pool.query(

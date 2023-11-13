@@ -13,7 +13,7 @@ export const getAllEnableBallots = async (req, res) => {
   } catch (err) {
     console.error(err);
     res.status(500).send({
-      error: "Error fetching Ballots",
+      error: "Error al recuperar las boletas",
     });
   }
 };
@@ -26,7 +26,7 @@ export const getAllDisableBallots = async (req, res) => {
   } catch (err) {
     console.error(err);
     res.status(500).send({
-      error: "Error fetching Ballots",
+      error: "Error al recuperar las boletas",
     });
   }
 };
@@ -41,7 +41,7 @@ export const getBallotById = async (req, res) => {
     );
     if (rows.length === 0) {
       res.status(404).send({
-        error: "Ballot not found",
+        error: "Boleta no encontrada",
       });
     } else {
       res.send(rows[0]);
@@ -49,7 +49,7 @@ export const getBallotById = async (req, res) => {
   } catch (err) {
     console.error(err);
     res.status(500).send({
-      error: "Error searching Ballot",
+      error: "Error al buscar la boleta",
     });
   }
 };
@@ -64,26 +64,26 @@ export const createBallot = async (req, res) => {
     const requiredFields = ["charge_id", "exercise_id", "candidates"];
     const missingFields = requiredFields.filter((field) => !req.body[field]);
     if (missingFields.length > 0) {
-      const error = `The following fields are required: ${missingFields.join(", ")}`;
+      const error = `Se requieren los siguientes campos: ${missingFields.join(", ")}`;
       return res.status(400).send({ error });
     }
 
     // Check for existing ballot with the same charge_id and exercise_id
     const [existingBallot] = await pool.query("SELECT * FROM election_exercise_ballot WHERE charge_id = ? AND exercise_id = ?", [charge_id, exercise_id]);
     if (existingBallot.length > 0) {
-      return res.status(400).send({ error: `A ballot already exists for this charge` });
+      return res.status(400).send({ error: `Ya existe una boleta para este cargo` });
     }
 
     // Check if the charge_id exists
     const [existingCharge] = await pool.query("SELECT * FROM charge WHERE charge_id = ?", [charge_id]);
     if (existingCharge.length === 0) {
-      return res.status(404).send({ error: `Charge does not exist` });
+      return res.status(404).send({ error: `El cargo no existe` });
     }
 
     // Check if the charge_id exists
     const [existingExercise] = await pool.query("SELECT * FROM election_exercise WHERE exercise_id = ?", [exercise_id]);
     if (existingExercise.length === 0) {
-      return res.status(404).send({ error: `Exercise does not exist` });
+      return res.status(404).send({ error: `El ejercicio no existe` });
     }
 
     
@@ -99,13 +99,13 @@ export const createBallot = async (req, res) => {
         const { name, first_lastname, second_lastname, party_id } = candidate;
 
         if (partyIds.has(party_id)) {
-          throw new Error(`Duplicate party ID ${party_id} found`);
+          throw new Error(`Id duplicado de partido ${party_id} encontrado`);
         }
         partyIds.add(party_id);
 
         const fullName = `${name} ${first_lastname} ${second_lastname}`;
         if (candidateNames.has(fullName)) {
-          throw new Error(`Duplicate candidate name ${fullName} found`);
+          throw new Error(`Candidato duplicado con nombre ${fullName} encontrado`);
         }
         candidateNames.add(fullName);
       }
@@ -122,7 +122,7 @@ export const createBallot = async (req, res) => {
         [BallotId, charge_id]
       );
       if (result.affectedRows === 0) {
-        throw new Error("Error creating ballot");
+        throw new Error("Error al crear la boleta");
       }
 
       await connection.query("INSERT INTO election_exercise_ballot (ballot_id, exercise_id, charge_id) VALUES (?, ?, ?)", [BallotId, exercise_id, charge_id]);
@@ -141,7 +141,7 @@ export const createBallot = async (req, res) => {
       await connection.commit();
 
       res.send({
-        message: "Ballot and candidates created successfully",
+        message: "Boleta y candidatos creados con éxito",
       });
     } catch (error) {
       await connection.rollback();
@@ -153,7 +153,7 @@ export const createBallot = async (req, res) => {
   } catch (err) {
     console.error(err);
     res.status(500).send({
-      error: "Error creating ballot and candidates",
+      error: "Error al crear boleta y candidatos",
     });
   }
 };
@@ -170,24 +170,24 @@ export const disableBallot = async (req, res) => {
     );
     if (Ballot.length === 0) {
       return res.status(404).send({
-        error: "Ballot not found",
+        error: "Boleta no encontrada",
       });
     }
     if (Ballot[0].status === 0) {
       return res.status(400).send({
-        error: "Ballot already deleted",
+        error: "Boleta ya eliminada",
       });
     }
     await pool.query("UPDATE Ballot SET status = false WHERE Ballot_id = ?", [
       id,
     ]);
     res.send({
-      message: "Ballot deleted successfully",
+      message: "Boleta eliminada exitosamente",
     });
   } catch (err) {
     console.error(err);
     res.status(500).send({
-      error: "Error deleting Ballot",
+      error: "Error al eliminar la boleta",
     });
   }
 };
@@ -202,24 +202,24 @@ export const enableBallot = async (req, res) => {
     );
     if (Ballot.length === 0) {
       return res.status(404).send({
-        error: "Ballot not found",
+        error: "Boleta no encontrada",
       });
     }
     if (Ballot[0].status === 1) {
       return res.status(400).send({
-        error: "Ballot already recovered",
+        error: "Boleta ya recuperada",
       });
     }
     await pool.query("UPDATE Ballot SET status = true WHERE Ballot_id = ?", [
       id,
     ]);
     res.send({
-      message: "Ballot recovered successfully",
+      message: "Boleta recuperada exitosamente",
     });
   } catch (err) {
     console.error(err);
     res.status(500).send({
-      error: "Error deleting Ballot",
+      error: "Error al eliminar la boleta",
     });
   }
 };

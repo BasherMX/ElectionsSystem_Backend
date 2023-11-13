@@ -1,7 +1,7 @@
 
 export const uploadFile = (req, res) => {
     res.status(200).send({ 
-        message: 'File uploaded successfully', 
+        message: 'El archivo se ha subido correctamente', 
         path: req.file.path,
         filename: req.file.filename,
         //id: id

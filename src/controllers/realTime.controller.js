@@ -16,7 +16,7 @@ export const getBallotsByExerciseId = async (req, res) => {
 		const missingFields = requiredFields.filter((field) => !req.body[field]);
 
 		if (missingFields.length > 0) {
-			const err = `The following fields are required: ${missingFields.join(", ")}`;
+			const err = `Se requieren los siguientes campos: ${missingFields.join(", ")}`;
 			return res.status(400).send({ error: err });
 		}
 
@@ -28,7 +28,7 @@ export const getBallotsByExerciseId = async (req, res) => {
 		);
 
 		if (!ExerciseResults) {
-			return res.status(400).send({ error: "This Exercise doesn't exist" });
+			return res.status(400).send({ error: "Este ejercicio no existe" });
 		}
 
 		const [ExerciseBallotResults] = await pool.query(
@@ -37,7 +37,7 @@ export const getBallotsByExerciseId = async (req, res) => {
 		);
 
 		if (!ExerciseBallotResults || ExerciseBallotResults.length === 0) {
-			return res.status(400).send({ error: "No ballots found for this exercise" });
+			return res.status(400).send({ error: "No se encontraron boletas para este ejercicio." });
 		}
 
 		const ballotIds = ExerciseBallotResults.map((result) => result.ballot_id);
@@ -52,7 +52,7 @@ export const getBallotsByExerciseId = async (req, res) => {
 		);
 
 		if (!BallotResults || BallotResults.length === 0) {
-			return res.status(400).send({ error: "No ballots found for the provided exercise" });
+			return res.status(400).send({ error: "No se encontraron boletas para el ejercicio proporcionado" });
 		}
 
 		const data = {};
@@ -88,7 +88,7 @@ export const getBallotsByExerciseId = async (req, res) => {
 	} catch (err) {
 		console.error(err);
 		res.status(500).send({
-			error: "Error retrieving ballots for the given exercise",
+			error: "Error al recuperar las boletas para el ejercicio indicado",
 		});
 	}
 };

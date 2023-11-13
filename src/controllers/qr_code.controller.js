@@ -8,7 +8,7 @@ export const getElectorQrById = async (req, res) => {
     try {
         const [elector] = await pool.query('select * from elector where elector_id= ?', [req.params.id]);
         if (elector.length === 0) {
-            return res.status(404).send({ error: 'elector not found' });
+            return res.status(404).send({ error: 'Elector no encontrado' });
         }
         const QRdata = JSON.stringify({elector_id: req.params.id});
         toString(
@@ -51,7 +51,7 @@ export const getVotationQrCode = async (req, res) => {
         //check the parameters
         if (!elector_id || !exercise_id) {
             res.status(500).send({
-                error: 'Missing parameters'
+                error: 'Parámetros faltantes'
             })
             return;
         }
@@ -59,7 +59,7 @@ export const getVotationQrCode = async (req, res) => {
         //check the time
         if (hour < initHour || hour > endHour || (hour === endHour && minute > endMinute)) {
             res.status(500).send({
-                error: 'QR code can only be generated between '+initHour+':0'+initMinute+' and '+endHour+':'+endMinute
+                error: 'El código QR solo se puede generar entre '+initHour+':0'+initMinute+' y '+endHour+':'+endMinute
             });
             return;
         }
@@ -67,12 +67,12 @@ export const getVotationQrCode = async (req, res) => {
         //check the exercise date
         const [exercise] = await pool.query('select date, state_id from election_exercise where exercise_id= ?', [exercise_id]);
         if (exercise.length === 0) {
-            return res.status(404).send({ error: 'exercise not found' });
+            return res.status(404).send({ error: 'Ejercicio no encontrado' });
         }
         const targetDate = new Date(exercise[0].date);
         if (now.toISOString().substring(0, 10) !== targetDate.toISOString().substring(0, 10)) {
             res.status(500).send({
-                error: 'QR code can only be generated on ' + targetDate.toDateString()
+                error: 'El código QR solo se puede generar en ' + targetDate.toDateString()
             });
             return;
         }
@@ -80,11 +80,11 @@ export const getVotationQrCode = async (req, res) => {
         //check if the elector state and the excersice state are the same
         const [elector] = await pool.query('select state_id from elector where elector_id= ?', [elector_id]);
         if (elector.length === 0) {
-            return res.status(404).send({ error: 'elector not found' });
+            return res.status(404).send({ error: 'Elector no encontrado' });
         }
         if(exercise[0].state_id !==  elector[0].state_id){
             res.status(500).send({
-                error: 'The elector is not from the same exercise state can not participate in this exercise'
+                error: 'El elector que no sea del mismo estado de ejercicio no puede participar en este ejercicio.'
             })
             return;
         }
@@ -95,7 +95,7 @@ export const getVotationQrCode = async (req, res) => {
             const qrGenerated = rows[0].qr_generated;
             if (qrGenerated) {
                 res.status(500).send({
-                    error: 'The QR code was already generated, only can be generated once'
+                    error: 'El código QR ya fue generado, solo se puede generar una vez'
                 });
                 return;
             }

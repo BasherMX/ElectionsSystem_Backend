@@ -12,7 +12,7 @@ export const verifyCanVotate = async (req, res) => {
 		const missingFields = requiredFields.filter((field) => !req.body[field]);
 
 		if (missingFields.length > 0) {
-			const err = `The following fields are required: ${missingFields.join(", ")}`;
+			const err = `Se requieren los siguientes campos: ${missingFields.join(", ")}`;
 			return res.status(400).send({ error: err });
 		}
 
@@ -22,7 +22,7 @@ export const verifyCanVotate = async (req, res) => {
 		);
 
 		if (!ElectorResult) {
-			return res.status(400).send({ error: "This Elector doesn't exist" });
+			return res.status(400).send({ error: "Este elector no existe" });
 		}
 
 		const [[ExerciseResult]] = await pool.query(
@@ -31,7 +31,7 @@ export const verifyCanVotate = async (req, res) => {
 		);
 
 		if (!ExerciseResult) {
-			return res.status(400).send({ error: "This Exercise doesn't exist" });
+			return res.status(400).send({ error: "Este ejercicio no existe" });
 		}
 
 		if (ExerciseResult.state_id !== ElectorResult.state_id) {
@@ -54,13 +54,13 @@ export const verifyCanVotate = async (req, res) => {
 		}
 
 		res.send({
-			message: "You can Vote on this exercise",
+			message: "Puedes votar en este ejercicio.",
 			code: 1,
 		});
 	} catch (err) {
 		console.error(err);
 		res.status(500).send({
-			error: "Error checking elector",
+			error: "Error al comprobar elector",
 		});
 	}
 };
@@ -75,7 +75,7 @@ export const getBallotsByExerciseId = async (req, res) => {
 		const missingFields = requiredFields.filter((field) => !req.body[field]);
 
 		if (missingFields.length > 0) {
-			const err = `The following fields are required: ${missingFields.join(", ")}`;
+			const err = `Se requieren los siguientes campos: ${missingFields.join(", ")}`;
 			return res.status(400).send({ error: err });
 		}
 
@@ -87,7 +87,7 @@ export const getBallotsByExerciseId = async (req, res) => {
 		);
 
 		if (!ExerciseResults) {
-			return res.status(400).send({ error: "This Exercise doesn't exist" });
+			return res.status(400).send({ error: "Este ejercicio no existe" });
 		}
 
 		const [ExerciseBallotResults] = await pool.query(
@@ -96,7 +96,7 @@ export const getBallotsByExerciseId = async (req, res) => {
 		);
 
 		if (!ExerciseBallotResults || ExerciseBallotResults.length === 0) {
-			return res.status(400).send({ error: "No ballots found for this exercise" });
+			return res.status(400).send({ error: "No se encontraron boletas para este ejercicio." });
 		}
 
 		const ballotIds = ExerciseBallotResults.map((result) => result.ballot_id);
@@ -111,7 +111,7 @@ export const getBallotsByExerciseId = async (req, res) => {
 		);
 
 		if (!BallotResults || BallotResults.length === 0) {
-			return res.status(400).send({ error: "No ballots found for the provided exercise" });
+			return res.status(400).send({ error: "No se encontraron boletas para el ejercicio proporcionado." });
 		}
 
 		const data = {};
@@ -137,7 +137,7 @@ export const getBallotsByExerciseId = async (req, res) => {
 	} catch (err) {
 		console.error(err);
 		res.status(500).send({
-			error: "Error retrieving ballots for the given exercise",
+			error: "Error al recuperar las boletas para el ejercicio indicado",
 		});
 	}
 };
@@ -149,7 +149,7 @@ export const voteForCandidate = async (req, res) => {
 	try {
 	  const { elector_id, exercise_id, votes } = req.body; // Se espera que votes sea un array de votos
 	  if (!Array.isArray(votes)) {
-		return res.status(400).send({ error: "Votes should be an array." });
+		return res.status(400).send({ error: "Los votos deben ser una matriz." });
 	  }
   
 	  // Verificar si el elector ya ha votado en este ejercicio electoral
@@ -159,7 +159,7 @@ export const voteForCandidate = async (req, res) => {
 	  );
   
 	  if (existingVoteResults.length > 0) {
-		return res.status(400).send({ error: "Elector has already voted in this exercise." });
+		return res.status(400).send({ error: "El elector ya ha votado en este ejercicio." });
 	  }
   
 	  for (const vote of votes) {
@@ -168,7 +168,7 @@ export const voteForCandidate = async (req, res) => {
 		const missingFields = requiredFields.filter((field) => !vote[field]);
   
 		if (missingFields.length > 0) {
-		  const err = `The following fields are required: ${missingFields.join(", ")}`;
+		  const err = `Se requieren los siguientes campos: ${missingFields.join(", ")}`;
 		  return res.status(400).send({ error: err });
 		}
   
@@ -179,7 +179,7 @@ export const voteForCandidate = async (req, res) => {
 		);
   
 		if (candidateResults.length === 0) {
-		  return res.status(400).send({ error: `Candidate ${candidate_id} does not belong to this ballot.` });
+		  return res.status(400).send({ error: `El candidato ${candidate_id} no pertenece a esta boleta.` });
 		}
   
 		if (!isSpoiledVote) {
@@ -208,11 +208,11 @@ export const voteForCandidate = async (req, res) => {
 		[elector_id, exercise_id]
 	  );
   
-	  res.send("Votes recorded successfully.");
+	  res.send("Votos registrados exitosamente.");
 	} catch (err) {
 	  console.error(err);
 	  res.status(500).send({
-		error: "Error recording votes.",
+		error: "Error al registrar los votos.",
 	  });
 	}
   };

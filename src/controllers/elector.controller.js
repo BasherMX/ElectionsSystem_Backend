@@ -10,7 +10,7 @@ import { sendElectorCredentialbyEmail } from '../helpers/elector.helper.js'
     } catch (err) {
       console.error(err);
       res.status(500).send({
-        error: 'Error fetching elector'
+        error: 'Error al buscar electores'
       });
     }
   }
@@ -23,7 +23,7 @@ import { sendElectorCredentialbyEmail } from '../helpers/elector.helper.js'
     } catch (err) {
       console.error(err);
       res.status(500).send({
-        error: 'Error fetching elector'
+        error: 'Error al buscar electores'
       });
     }
   }
@@ -38,7 +38,7 @@ import { sendElectorCredentialbyEmail } from '../helpers/elector.helper.js'
       const [rows] = await pool.query('SELECT * FROM elector WHERE elector_id = ?', [id]);
       if (rows.length === 0) {
         res.status(404).send({
-          error: 'Elector not found'
+          error: 'Elector no encontrado'
         });
       } else {
         res.send(rows[0]);
@@ -46,7 +46,7 @@ import { sendElectorCredentialbyEmail } from '../helpers/elector.helper.js'
     } catch (err) {
       console.error(err);
       res.status(500).send({
-        error: 'Error searching elector'
+        error: 'Error al buscar elector'
       });
     }
   }
@@ -60,7 +60,7 @@ import { sendElectorCredentialbyEmail } from '../helpers/elector.helper.js'
         const missingFields = requiredFields.filter(field => !req.body[field]);
         
         if (missingFields.length > 0) {
-          const error = `The following fields are required: ${missingFields.join(', ')}`;
+          const error = `Se requieren los siguientes campos: ${missingFields.join(', ')}`;
           return res.status(400).send({ error });
         }
 
@@ -68,13 +68,13 @@ import { sendElectorCredentialbyEmail } from '../helpers/elector.helper.js'
         const [result] = await pool.query('SELECT * FROM elector WHERE name = ? AND first_lastname = ? AND second_lastname = ? AND date_of_birth = ?', [name, first_lastname, second_lastname, date_of_birth]);
         if (result.length > 0) {
             return res.status(400).send({
-            error: 'elector already exists'
+            error: 'El elector ya existe'
             });
         } else {
             await pool.query(`INSERT INTO elector (elector_id, name, first_lastname, second_lastname, date_of_birth, street, outer_number, interior_number,zip_code, state_id, picture, gender, email) 
             VALUES (?, ?, ?, ?, ?, ?,?,?,?,?,?,?,?)`, [id, name, first_lastname, second_lastname, date_of_birth, street, outer_number, interior_number,zip_code, state_id, picture, gender, email]);
             res.send({
-              message: "elector created successfully"
+              message: "Elector creado exitosamente"
             });
         }
 
@@ -89,7 +89,7 @@ import { sendElectorCredentialbyEmail } from '../helpers/elector.helper.js'
     } catch (err) {
       console.error(err);
       res.status(500).send({
-        error: 'Error creating elector'
+        error: 'Error al crear elector'
       });
     }
   }
@@ -104,7 +104,7 @@ import { sendElectorCredentialbyEmail } from '../helpers/elector.helper.js'
       const [candidate] = await pool.query('SELECT * FROM elector WHERE elector_id = ?', [id]);
       if (candidate.length === 0) {
         return res.status(404).send({
-          error: 'Candidate not found'
+          error: 'Candidato no encontrado'
         });
       }
 
@@ -112,13 +112,13 @@ import { sendElectorCredentialbyEmail } from '../helpers/elector.helper.js'
       [name, first_lastname, second_lastname, date_of_birth, street, outer_number, interior_number,zip_code, state_id, picture, gender, email,id]);
      
       res.send({
-        message:"Candidate updated successfully"
+        message:"Candidato actualizado con éxito"
       });
 
     } catch (err) {
       console.error(err);
       res.status(500).send({
-        error: 'Error updating elector'
+        error: 'Error al actualizar elector'
       });
     }
   }
@@ -130,21 +130,21 @@ import { sendElectorCredentialbyEmail } from '../helpers/elector.helper.js'
       const { id } = req.params;
       const [elector] = await pool.query('SELECT * FROM elector WHERE elector_id = ?', [id]);
       if (elector.length === 0) {
-        return res.status(404).send({ error: 'Elector not found' });
+        return res.status(404).send({ error: 'Elector no encontrado' });
       }
 
       if (elector[0].enable === 0) {
-        return res.status(400).send({ error: 'Elector already deleted' });
+        return res.status(400).send({ error: 'Elector ya eliminado' });
       }
 
       await pool.query('UPDATE elector SET enable = false WHERE elector_id = ?', [id]);
       res.send({
-        message: 'Elector deleted successfully'
+        message: 'Elector eliminado con éxito'
       });
     } catch (err) {
       console.error(err);
       res.status(500).send({
-        error: 'Error deleting elector'
+        error: 'Error al eliminar elector'
       });
     }
   };
@@ -156,21 +156,21 @@ import { sendElectorCredentialbyEmail } from '../helpers/elector.helper.js'
       const { id } = req.params;
       const [elector] = await pool.query('SELECT * FROM elector WHERE elector_id = ?', [id]);
       if (elector.length === 0) {
-        return res.status(404).send({ error: 'Elector not found' });
+        return res.status(404).send({ error: 'Elector no encontrado' });
       }
 
       if (elector[0].enable === 1) {
-        return res.status(400).send({ error: 'Elector already enabled' });
+        return res.status(400).send({ error: 'Elector ya habilitado' });
       }
 
       await pool.query('UPDATE elector SET enable = true WHERE elector_id = ?', [id]);
       res.send({
-        message: 'Elector enabled successfully',
+        message: 'Elector habilitado exitosamente',
       });
     } catch (err) {
       console.error(err);
       res.status(500).send({
-        error: 'Error enabling elector'
+        error: 'Error al habilitar elector'
       });
     }
   };

@@ -38,7 +38,7 @@ export const getAllEnableUsers = async (req, res) => {
 	} catch (err) {
 		console.error(err);
 		res.status(500).send({
-			error: "Error fetching Users",
+			error: "Error al buscar usuarios",
 		});
 	}
 };
@@ -71,7 +71,7 @@ export const getAllDisableUsers = async (req, res) => {
 	} catch (err) {
 		console.error(err);
 		res.status(500).send({
-			error: "Error fetching Users",
+			error: "Error al buscar usuarios",
 		});
 	}
 };
@@ -83,7 +83,7 @@ export const getUserById = async (req, res) => {
 		const [rows] = await pool.query("SELECT * FROM User WHERE User_id = ?", [ id]);
 		if (rows.length === 0) {
 			res.status(404).send({
-				error: "User not found"
+				error: "Usuario no encontrado"
 			});
 		}
 		const users = rows.map((row) => ({
@@ -98,7 +98,7 @@ export const getUserById = async (req, res) => {
 	} catch (err) {
 		console.error(err);
 		res.status(500).send({
-			error: "Error searching User"
+			error: "Error al buscar usuario"
 		});
 	}
 };
@@ -111,7 +111,7 @@ export const createUser = async (req, res) => {
 		const missingFields = requiredFields.filter((field) => !req.body[field]);
 
 		if (missingFields.length > 0) {
-			const err = `The following fields are required: ${missingFields.join(", ")}`;
+			const err = `Se requieren los siguientes campos: ${missingFields.join(", ")}`;
 			return res.status(400).send({
 				error: err
 			});
@@ -123,7 +123,7 @@ export const createUser = async (req, res) => {
 		);
 		if (result.length > 0) {
 			return res.status(400).send({
-				error: "User already exists",
+				error: "El usuario ya existe",
 			});
 		}
 
@@ -159,14 +159,14 @@ export const createUser = async (req, res) => {
 		sendUserEmail(link, email,passwordAux);
 		
 		res.send({
-			message: "User created successfully",
+			message: "Usuario creado con éxito",
 			link:  link,
 			passwordAux: passwordAux
 		});
 	} catch (err) {
 		console.error(err);
 		res.status(500).send({
-			error: "Error creating User",
+			error: "Error al crear usuario",
 		});
 	}
 };
@@ -193,7 +193,7 @@ function updatePermissions(user_id, user_type) {
 			);
 			break;
 		default:
-			console.log("Error updating permissions");
+			console.log("Error al actualizar permisos");
 			break;
 	}
 }
@@ -227,12 +227,12 @@ export const updateUser = async (req, res) => {
 		}
 
 		res.send({
-			message: "User updated successfully"
+			message: "Usuario actualizado con éxito"
 		});
 	} catch (err) {
 		console.error(err);
 		res.status(500).send({
-			error: "Error updating User",
+			error: "Error al actualizar usuario",
 		});
 	}
 };
@@ -244,22 +244,22 @@ export const disableUser = async (req, res) => {
 		const [User] = await pool.query("SELECT * FROM User WHERE User_id = ?", [id]);
 		if (User.length === 0) {
 			return res.status(404).send({
-				error: "User not found",
+				error: "Usuario no encontrado",
 			});
 		}
 		if (User[0].enable === 0) {
 			return res.status(400).send({
-				error: "User already deleted",
+				error: "Usuario ya eliminado",
 			});
 		}
 		await pool.query("UPDATE User SET enable = false WHERE User_id = ?", [id]);
 		res.send({
-			message: "User deleted successfully",
+			message: "Usuario eliminado exitosamente",
 		});
 	} catch (err) {
 		console.error(err);
 		res.status(500).send({
-			error: "Error deleting User"
+			error: "Error al eliminar usuario"
 		});
 	}
 };
@@ -275,22 +275,22 @@ export const enableUser = async (req, res) => {
 		]);
 		if (User.length === 0) {
 			return res.status(404).send({
-				error: "User not found",
+				error: "Usuario no encontrado",
 			});
 		}
 		if (User[0].enable === 1) {
 			return res.status(400).send({
-				error: "User already recovered",
+				error: "Usuario ya recuperado",
 			});
 		}
 		await pool.query("UPDATE User SET enable = true WHERE User_id = ?", [id]);
 		res.send({
-			message: "User recovered successfully",
+			message: "Usuario recuperado con éxito",
 		});
 	} catch (err) {
 		console.error(err);
 		res.status(500).send({
-			error: "Error deleting User"
+			error: "Error al eliminar usuario"
 		});
 	}
 };

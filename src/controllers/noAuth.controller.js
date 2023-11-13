@@ -19,12 +19,12 @@ export const verifyUserAccount = async (req, res) => {
 		]);
 		if (User.length === 0) {
 			return res.status(404).send({
-				error: "User not found",
+				error: "Usuario no encontrado",
 			});
 		}
 		if (User[0].verified_account === 1) {
 			return res.status(400).send({
-				error: "User already verified",
+				error: "Usuario ya verificado",
 			});
 		}
 
@@ -38,12 +38,12 @@ export const verifyUserAccount = async (req, res) => {
 
 
 		res.send({
-			message: "User verified successfully"
+			message: "Usuario verificado con éxito"
 		});
 	} catch (err) {
 		console.error(err);
 		res.status(500).send({
-			error: "Error verifing User"
+			error: "Error al verificar el usuario"
 		});
 	}
 };
@@ -57,7 +57,7 @@ export const loginUser = async (req, res) => {
     // Check if the email is valid
     if (!email || !password) {
       return res.status(400).send({
-        error: 'Email and password are required'
+        error: 'Se requiere correo electrónico y contraseña'
       });
     }
 
@@ -68,13 +68,13 @@ export const loginUser = async (req, res) => {
     // If no user was found with the specified email, return an error
     if (!user) {
       return res.status(401).send({
-        error: 'User not Found'
+        error: 'Usuario no encontrado'
       });
     }
 
 	if(!user.verified_account){
 		return res.status(401).send({
-			error: 'User not verified'
+			error: 'Usuario no verificado'
 		});
 	}
 
@@ -85,20 +85,20 @@ export const loginUser = async (req, res) => {
 
     if (!isMatch) {
       return res.status(401).send({
-        error: 'Invalid credentials'
+        error: 'Credenciales no válidas'
       });
     }
 
 
     const jwtToken = generateToken(email);
     res.send({
-      message: 'User logged in successfully',
+      message: 'El usuario inició sesión exitosamente',
       ...jwtToken
     });
   } catch (err) {
     console.error(err);
     res.status(500).send({
-		error: 'Error logging in user'
+		error: 'Error al iniciar sesión con el usuario'
 	});
   }
 };

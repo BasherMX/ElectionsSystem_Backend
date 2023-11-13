@@ -5,7 +5,7 @@ import 'dotenv/config';
 export const authMiddleware = (req, res, next) => {
   const authHeader = req.headers.authorization;
   if (!authHeader) {
-    return res.status(401).send('Authorization header missing');
+    return res.status(401).send('Falta el encabezado de autorización');
   }
 
   const token = authHeader.split(' ')[1];
@@ -14,6 +14,6 @@ export const authMiddleware = (req, res, next) => {
     req.user = decoded;
     next();
   } catch (err) {
-    return res.status(403).send('Invalid token');
+    return res.status(403).send('Token Invalido');
   }
 };
