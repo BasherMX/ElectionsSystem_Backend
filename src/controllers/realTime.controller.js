@@ -3,8 +3,23 @@ import {
 } from "../db/db.js";
 import 'dotenv/config';
 
-export const ping = async (req,res) => {
-	return res.status(200).send({ message: "pong" });
+export const getStates = async (req,res) => {
+	try {
+		
+		const [stateResults] = await pool.query("SELECT * from state");
+
+		if (!stateResults) {
+			return res.status(400).send({ error: "Error al recuperar estados" });
+		}
+		console.log(stateResults);
+		res.send(stateResults);
+
+	} catch (err) {
+		console.error(err);
+		res.status(500).send({
+			error: "Error retrieving estados for the given exercise",
+		});
+	}
 }
 
 
