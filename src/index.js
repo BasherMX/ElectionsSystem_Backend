@@ -27,7 +27,7 @@ app.use(express.json())
 
 
 // --- Auth Routes ---
-// app.use('/user', authMiddleware, userRoutes)
+app.use('/user', authMiddleware, userRoutes)
 // app.use('/vote', authMiddleware, voteRoutes)
 // app.use('/realTime', authMiddleware, realTimeRoutes)
 // app.use('/politicalParty', authMiddleware, politicalPartyRoutes)
@@ -38,7 +38,7 @@ app.use(express.json())
 // app.use('/file', authMiddleware, uploadRoutes)
 
 // -- Auth Routes for DEV
-app.use('/user', userRoutes)
+// app.use('/user', userRoutes)
 app.use('/vote', voteRoutes)
 app.use('/realTime', realTimeRoutes)
 app.use('/politicalParty', politicalPartyRoutes)

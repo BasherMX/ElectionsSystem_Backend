@@ -90,10 +90,21 @@ export const loginUser = async (req, res) => {
     }
 
 
+	const [getUserName] = await pool.query('SELECT * FROM user_type WHERE user_type_id = ?', [user.user_id]);
+
+    // If no user was found with the specified email, return an error
+    if (!getUserName) {
+      return res.status(401).send({
+        error: 'User type not Found'
+      });
+    }
+
+
     const jwtToken = generateToken(email);
     res.send({
       message: 'User logged in successfully',
-      ...jwtToken
+      ...jwtToken,
+	  userType: user.user_type
     });
   } catch (err) {
     console.error(err);
