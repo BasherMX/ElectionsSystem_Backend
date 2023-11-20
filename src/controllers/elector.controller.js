@@ -56,7 +56,7 @@ import { sendElectorCredentialbyEmail } from '../helpers/elector.helper.js'
   export const createElector = async (req, res) => {
     try {
         const { name, first_lastname, second_lastname, date_of_birth, street, outer_number, interior_number,zip_code, state_id, picture, gender, email } = req.body;
-        const requiredFields = ['name', 'first_lastname', 'second_lastname', 'date_of_birth', 'street', 'outer_number', 'interior_number','zip_code', 'state_id', 'picture', 'gender', 'email'];
+        const requiredFields = ['name', 'first_lastname', 'second_lastname', 'date_of_birth', 'street', 'outer_number', 'zip_code', 'state_id', 'picture', 'gender', 'email'];
         const missingFields = requiredFields.filter(field => !req.body[field]);
         
         if (missingFields.length > 0) {

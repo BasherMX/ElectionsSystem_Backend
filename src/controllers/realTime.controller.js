@@ -11,7 +11,6 @@ export const getStates = async (req,res) => {
 		if (!stateResults) {
 			return res.status(400).send({ error: "Error al recuperar estados" });
 		}
-		console.log(stateResults);
 		res.send(stateResults);
 
 	} catch (err) {

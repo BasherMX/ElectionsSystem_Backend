@@ -27,31 +27,31 @@ app.use(express.json())
 
 
 // --- Auth Routes ---
-// app.use('/user', authMiddleware, userRoutes)
-// app.use('/vote', authMiddleware, voteRoutes)
-// app.use('/realTime', authMiddleware, realTimeRoutes)
-// app.use('/politicalParty', authMiddleware, politicalPartyRoutes)
-// app.use('/qrCode', authMiddleware, qrCodeRoutes)
-// app.use('/elector', authMiddleware, electorRoutes)
-// app.use('/ballot', authMiddleware, ballotRoutes)
-// app.use('/exercise', authMiddleware, exerciseRoutes)
-// app.use('/file', authMiddleware, uploadRoutes)
+// app.use('/api/user', authMiddleware, userRoutes)
+// app.use('/api/vote', authMiddleware, voteRoutes)
+// app.use('/api/realTime', authMiddleware, realTimeRoutes)
+// app.use('/api/politicalParty', authMiddleware, politicalPartyRoutes)
+// app.use('/api/qrCode', authMiddleware, qrCodeRoutes)
+// app.use('/api/elector', authMiddleware, electorRoutes)
+// app.use('/api/ballot', authMiddleware, ballotRoutes)
+// app.use('/api/exercise', authMiddleware, exerciseRoutes)
+// app.use('/api/file', authMiddleware, uploadRoutes)
 
 // -- Auth Routes for DEV
-app.use('/user', userRoutes)
-app.use('/vote', voteRoutes)
-app.use('/realTime', realTimeRoutes)
-app.use('/politicalParty', politicalPartyRoutes)
-app.use('/qrCode', qrCodeRoutes)
-app.use('/elector', electorRoutes)
-app.use('/ballot', ballotRoutes)
-app.use('/exercise', exerciseRoutes)
-app.use('/file', uploadRoutes)
+app.use('/api/user', userRoutes)
+app.use('/api/vote', voteRoutes)
+app.use('/api/realTime', realTimeRoutes)
+app.use('/api/politicalParty', politicalPartyRoutes)
+app.use('/api/qrCode', qrCodeRoutes)
+app.use('/api/elector', electorRoutes)
+app.use('/api/ballot', ballotRoutes)
+app.use('/api/exercise', exerciseRoutes)
+app.use('/api/file', uploadRoutes)
 
 
 
 // --- Public Routes ---
-app.use('/public', userNoAuth)
+app.use('/api/public', userNoAuth)
 
 
 

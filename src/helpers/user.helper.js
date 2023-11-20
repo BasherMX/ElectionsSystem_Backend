@@ -31,7 +31,6 @@ export function generateRandomId() {
   });
   
     transporter.verify().then(() => {
-      console.log("Ready for send emails");
     })
     
 

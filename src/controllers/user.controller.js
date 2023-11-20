@@ -142,8 +142,6 @@ export const createUser = async (req, res) => {
 		const salt = await bcrypt.genSalt(10);
 		const hashedPassword = await bcrypt.hash(passwordAux, salt);
 
-		console.log("aux:" + passwordAux);
-		console.log("hash:" + hashedPassword);
 
 		await pool.query(
 			"INSERT INTO User (user_id,name, first_lastname, second_lastname, user_type, password, email) VALUES (?, ?, ?, ?, ?, ?,?)",

@@ -99,13 +99,22 @@ export const loginUser = async (req, res) => {
       });
     }
 
+	let userTypeName = "";
+	if(user.user_type == 1){
+		 userTypeName = "Administrador Sr.";
+	}else{
+		 userTypeName = "Administrador Jr.";
+	}
+
 
     const jwtToken = generateToken(email);
     res.send({
 
       message: 'El usuario inició sesión exitosamente',
       ...jwtToken,
-	  userType: user.user_type
+	  userType: user.user_type,
+	  userTypeName: userTypeName,
+	  userName: user.name + " " + user.first_lastname
 
     });
   } catch (err) {
