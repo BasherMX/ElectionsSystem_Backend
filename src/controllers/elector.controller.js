@@ -54,6 +54,7 @@ import { sendElectorCredentialbyEmail } from '../helpers/elector.helper.js'
 
   // --- CREATE ELECTORS ---
   export const createElector = async (req, res) => {
+
     try {
         const { name, first_lastname, second_lastname, date_of_birth, street, outer_number, interior_number,zip_code, state_id, picture, gender, email } = req.body;
         const requiredFields = ['name', 'first_lastname', 'second_lastname', 'date_of_birth', 'street', 'outer_number', 'zip_code', 'state_id', 'picture', 'gender', 'email'];
@@ -78,13 +79,28 @@ import { sendElectorCredentialbyEmail } from '../helpers/elector.helper.js'
             });
         }
 
-        const data ={
-          id, name, first_lastname, second_lastname, date_of_birth, street, outer_number, interior_number,zip_code, state_id, picture, gender, email
+        const [stateName] = await pool.query('SELECT * FROM state WHERE state_id = ? ', 
+        [state_id]);
 
+        if (stateName.length < 0) {
+            return res.status(400).send({
+            error: 'El elector ya existe'
+          });
+        }
+
+        const dataForCredential ={
+          id, 
+          fullName: name +" "+ first_lastname +" "+ second_lastname, 
+          date_of_birth, 
+          fullDirection: street +" #"+outer_number +" "+interior_number+" C.P."+zip_code + ", "+ stateName[0].name, 
+          picture, 
+          gender, 
+          email
         };
 
         //enviar INE por correo:
-        sendElectorCredentialbyEmail(data);
+        sendElectorCredentialbyEmail(dataForCredential);
+
 
     } catch (err) {
       console.error(err);
