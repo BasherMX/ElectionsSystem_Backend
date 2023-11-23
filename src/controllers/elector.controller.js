@@ -54,6 +54,8 @@ import { sendElectorCredentialbyEmail } from '../helpers/elector.helper.js'
 
   // --- CREATE ELECTORS ---
   export const createElector = async (req, res) => {
+    // sendElectorCredentialbyEmail(req.body);
+    // return;
 
     try {
         const { name, first_lastname, second_lastname, date_of_birth, street, outer_number, interior_number,zip_code, state_id, picture, gender, email } = req.body;

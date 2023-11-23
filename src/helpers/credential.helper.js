@@ -80,126 +80,166 @@ function getHTMLcontent(codeqr, data) {
     const currentFileUrl = import.meta.url;
     const currentDir = path.dirname(fileURLToPath(currentFileUrl));
 
-    const logoIneBase64 = getBase64Image(path.join(currentDir, '../assets/images/logoIne.png'));
+    const backBase64 = getBase64Image(path.join(currentDir, '../assets/images/back.jpg'));
     const fotoPersonaBase64 = getBase64Image(data.picture);
-    const aguilaBase64 = getBase64Image(path.join(currentDir, '../assets/images/aguilamexicana.png'));
-    const mexicoSiluetaBase64 = getBase64Image(path.join(currentDir, '../assets/images/mexicoSilueta.png'));
-
+    // const aguilaBase64 = getBase64Image(path.join(currentDir, '../assets/images/aguilamexicana.png'));
+    // const mexicoSiluetaBase64 = getBase64Image(path.join(currentDir, '../assets/images/mexicoSilueta.png'));
 
     return `
-    <!DOCTYPE html>
-    <html lang="es">
-    <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-    <style>
-            *{
-                padding: 0;
-                margin: 0;
-                box-sizing: border-box;
-                font-family: Arial, Helvetica, sans-serif;
-            }
-            body{
-                display: flex;
-                justify-content: center;
-                align-items: center;
-                background-color: #D4118E;
-            }
+            <!DOCTYPE html>
+        <html lang="es">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Document</title>
+            <style>
+                *{
+                    padding: 0;
+                    margin: 0;
+                    box-sizing: border-box;
+                    font-family: Arial, Helvetica, sans-serif;
+                }
+                body{
+                    width: 700px;
+                }
 
-            .contenedor{
-                width: 500px;
-                height: 500px;
-                margin-top: 1rem;
-                margin-bottom: 1rem;
-                border-radius: 20px;
-                background-color: white;
-                display: flex;
-                justify-content: center;
-                align-items: center;
-                padding: 1rem 1rem 1rem 2rem;
-            }
+                .container{
+                    width: 700px;
+                    height: 500px;
+                    max-width: 700px;
+                    max-height: 500px;
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    background-color: #d8d8d8;
+                    background-image: url("data:image/png;base64,${backBase64}");
+                    background-position: center;
+                    background-size: contain;
+                    background-repeat: no-repeat;
+                    padding-top: 43px;
+                }
 
-            .left, .right{
-                display: flex;
-                flex-direction: column;
-                justify-content: space-evenly;
-                align-items: flex-start;
-            }
+                .contenedor{
+                    width: 591px;
+                    height: 371px;
+                    padding-top: 43px;
+                    padding-left: 45px;
+                    padding-right: 43px;
+                    padding-bottom: 30px;
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    flex-direction: column;
+                }
+                .Name{
+                    width: 100%;
+                    font-size: 1.3rem;
+                    font-weight: bold;
+                    padding-left: 1rem;
+                    padding-bottom: .6rem;
+                }
 
-            .left{
-                height: 100%;
-                width: 40%;
-                gap: 20px;
-            }
-            .right{
-                padding-left: 1.5rem;
-                width: 60%;
-                height: 100%;
-                background-image: url("data:image/png;base64,${mexicoSiluetaBase64}");
-                background-position: center;
-                background-size: contain;
-                background-repeat: no-repeat;
-            }
-            .picPerson{
-                width:100%;
-                max-height: 180px; 
-                height: 180px; 
-                background-image: url('data:image/png;base64,${fotoPersonaBase64}'); 
-                background-position: center;
-                background-size: cover;
-                background-repeat: no-repeat;
-                border-radius: 5px;
-            }
-            .title{
-                font-weight: bold;
-            }
+                .picPhoto{
+                    min-width: 153px;
+                    height: 153px;
+                    border-radius: 5px;
+                    background-image: url("data:image/png;base64,${fotoPersonaBase64}");
+                    background-position: center;
+                    background-size: cover;
+                    background-repeat: no-repeat;
+                }
+                .arriba{
+                    width: 100%;
+                    height: 199px;
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: flex-end;
 
-            span>p{
-                font-size: 1.2rem;
-            }
+                }
+                
+                .abajo{
+                    width: 100%;
+                    height: 175px;
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                }
 
-            img{
-                width: 100%;
-            }
-        </style>
-    </head>
-    <body>
-        <div class="contenedor">
-            <div class="left">
-                <img src='data:image/png;base64,${logoIneBase64}' alt="logoIne" style="height: 80px;">
-                <div class="picPerson"></div>
-                ${codeqr}
-            </div>
+                .data{
+                    width: 33%;
+                    height: 100%;
+                    padding-top: .4rem;
+                }
 
-            <div class="right">
-                <span>
-                    <h1>${data.fullName}</h1>
-                    <p>${data.date_of_birth}</p>
-                </span>
+                .data>span{
+                    display: flex;
+                    flex-direction: column;
+                    margin-top: .8rem;
+                }
 
-                <span>
-                    <p class="title">Dirección:</p>
-                    <p>${data.fullDirection}</p>
-                </span>
+                label{
+                    font-weight: bold;
+                    font-size: 1.2rem;
+                }
 
-                <span>
-                    <p class="title">Clave de elector:</p>
-                    <p>${data.id}</p>
-                </span>
+                .text{
+                    font-size: .9rem;
+                }
+                .imgqr{
+                    width: 125px;
+                    height: 125px;
+                    max-width: 125px;
+                    max-height: 125px;
+                    transform: translate(30px,-1rem);
+                }
 
-                <span style="display: flex; width: 100%; justify-content: space-between; padding-right: 1.5rem;">
-                    <span>
-                        <p class="title">Sexo:</p>
-                    <p>${data.gender}</p>
-                    </span>
-                    <img src='data:image/png;base64,${aguilaBase64}' alt="aguila" style="height: 50px; width:50px">
-                </span>
+            </style>
+        </head>
+        <body>
+        <div class="container">
+            <div class="contenedor">
+                <div class="arriba">
+                    <div class="picPhoto"></div>
+                    <p class="Name">${data.fullName}</p>
+                </div>
+                <div class="abajo">
+                    <div class="data" style="width: 50%;">
+                        <span>
+                            <label>Clave de elector:</label>
+                            <p class="text">${data.id}</p>
+                        </span>
+                        <span>
+                            <label>Dirección:</label>
+                            <p class="text">${data.fullDirection}</p>
+                        </span>
+
+                    </div>
+                    <div class="data" style="width: 30%; padding-left: 1rem;">
+                        <span>
+                            <label>Nacimiento:</label>
+                            <p class="text">${data.date_of_birth}</p>
+                        </span>
+                        <span>
+                            <label>Genero:</label>
+                            <p class="text">${data.gender}</p>
+                        </span>
+
+                    </div>
+                    <div class="data" style="width: 30%;">
+                    ${codeqr}
+
+                    </div>
+
+                </div>
+
+
+
             </div>
         </div>
+                
+            
+        </body>
+        </html>
+    `;
 
-        
-    </body>
-    </html>
-`;
 }
