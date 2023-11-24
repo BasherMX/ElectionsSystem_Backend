@@ -4,7 +4,7 @@ import {getBallotsByExerciseId, getStates} from  "../controllers/realTime.contro
 const router = Router();
 
 
-router.get('/getBallotsByExerciseId', getBallotsByExerciseId);
+router.get('/getBallotsByExerciseId/:exercise_id', getBallotsByExerciseId);
 router.get('/getAllStates', getStates);
 
 

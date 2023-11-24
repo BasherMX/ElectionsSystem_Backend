@@ -25,17 +25,15 @@ export const getStates = async (req,res) => {
 // --- getBallotsByExerciseId ---
 export const getBallotsByExerciseId = async (req, res) => {
 	try {
-		const { exercise_id } = req.body;
-		const requiredFields = ["exercise_id"];
-		const missingFields = requiredFields.filter((field) => !req.body[field]);
+		const { exercise_id } = req.params;
 
-		if (missingFields.length > 0) {
-			const err = `Se requieren los siguientes campos: ${missingFields.join(", ")}`;
+		if (exercise_id == null) {
+			const err = `Se requieren Un ID`;
 			return res.status(400).send({ error: err });
 		}
 
 		const [[ExerciseResults]] = await pool.query(
-			"SELECT ee.*, s.name as state_name FROM election_exercise ee " +
+			"SELECT ee.*, s.name as state_name, s.state_id as stateId FROM election_exercise ee " +
 			"INNER JOIN state s ON ee.state_id = s.state_id " +
 			"WHERE ee.exercise_id = ?",
 			[exercise_id]
@@ -69,7 +67,17 @@ export const getBallotsByExerciseId = async (req, res) => {
 			return res.status(400).send({ error: "No se encontraron boletas para el ejercicio proporcionado" });
 		}
 
-		const data = {};
+		const [expectedVotes] = await pool.query(
+			"SELECT * FROM elector where state_id = ?", [ExerciseResults.stateId]
+		);
+
+		if (expectedVotes.length === 0) {
+			return res.status(400).send({ error: "No se encontro ninugn elector para este estado." });
+		}
+
+
+		const data = {
+		};
 		BallotResults.forEach((row) => {
 			if (!data[row.ballot_id]) {
 				data[row.ballot_id] = {
@@ -78,8 +86,9 @@ export const getBallotsByExerciseId = async (req, res) => {
 					election_date: row.election_date,
 					status: row.status,
 					winnerCandidate_id: row.winnerCandidate_id,
-					totalVotes: row.ballotTotalVotes,
+					totalVotes: 1,
 					anuledVotes: row.anuledVotes,
+					expectedVotes: expectedVotes.length,
 					state_name: ExerciseResults.state_name, // Agregando el nombre del estado
 					candidates: [],
 				};
