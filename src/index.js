@@ -2,6 +2,10 @@ import express from "express";
 import cors from "cors"; // Importa el paquete cors
 import './config.js'
 
+import path from 'path';
+import { fileURLToPath } from 'url';
+import { dirname, join } from 'path';
+import multer from 'multer';
 
 // --- Middlewares ---
 import { authMiddleware } from "./middleweres/middleware.js";
@@ -47,6 +51,18 @@ app.use('/api/elector', electorRoutes)
 app.use('/api/ballot', ballotRoutes)
 app.use('/api/exercise', exerciseRoutes)
 app.use('/api/file', uploadRoutes)
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+app.use('/getImage', express.static(path.join(__dirname, 'assets/uploads')));
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        cb(null, 'uploads')
+    },
+    filename: (req, file, cb) => {
+        cb(null, file.originalname)
+    }
+});
 
 
 

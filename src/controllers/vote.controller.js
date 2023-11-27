@@ -3,6 +3,7 @@ import {
 } from "../db/db.js";
 import 'dotenv/config';
 
+const api = "http://localhost:3000/getImage/";
 
 // --- Verify can vote ---
 export const verifyCanVotate = async (req, res) => {
@@ -17,9 +18,12 @@ export const verifyCanVotate = async (req, res) => {
 		}
 
 		const [[ElectorResult]] = await pool.query(
-			"SELECT state_id FROM elector WHERE elector_id = ?",
+			"SELECT elector.*, state.name AS state_name FROM elector " +
+			"JOIN state ON elector.state_id = state.state_id " +
+			"WHERE elector.elector_id = ?",
 			[elector_id]
-		);
+		  );
+		  
 
 		if (!ElectorResult) {
 			return res.status(400).send({ error: "Este elector no existe" });
@@ -53,9 +57,16 @@ export const verifyCanVotate = async (req, res) => {
 			});
 		}
 
+		let electorDta = {
+			id: ElectorResult.elector_id,
+			name: ElectorResult.name + " " + ElectorResult.first_lastname + " " + ElectorResult.second_lastname,
+			estado: ElectorResult.state_name
+		}
+
 		res.send({
 			message: "Puedes votar en este ejercicio.",
 			code: 1,
+			electorDta: electorDta
 		});
 	} catch (err) {
 		console.error(err);
@@ -70,14 +81,8 @@ export const verifyCanVotate = async (req, res) => {
 // --- getBallotsByExerciseId ---
 export const getBallotsByExerciseId = async (req, res) => {
 	try {
-		const { exercise_id } = req.body;
+		const { exercise_id } = req.params;
 		const requiredFields = ["exercise_id"];
-		const missingFields = requiredFields.filter((field) => !req.body[field]);
-
-		if (missingFields.length > 0) {
-			const err = `Se requieren los siguientes campos: ${missingFields.join(", ")}`;
-			return res.status(400).send({ error: err });
-		}
 
 		const [[ExerciseResults]] = await pool.query(
 			"SELECT ee.*, s.name as state_name FROM election_exercise ee " +
@@ -114,6 +119,9 @@ export const getBallotsByExerciseId = async (req, res) => {
 			return res.status(400).send({ error: "No se encontraron boletas para el ejercicio proporcionado." });
 		}
 
+		
+
+
 		const data = {};
 		BallotResults.forEach((row) => {
 			if (!data[row.ballot_id]) {
@@ -128,8 +136,19 @@ export const getBallotsByExerciseId = async (req, res) => {
 				candidate_id: row.candidate_id,
 				completeName: row.name + " " + row.first_lastname + " " + row.second_lastname,
 				pseudonym: row.pseudonym,
-				party_image: row.party_image,
+				party_image: api + row.party_image.slice(-17),
 				party_name: row.party_name,
+			});
+		});
+
+		// Agregar "Anular Voto" solo una vez a cada boleta
+		Object.values(data).forEach((boleta) => {
+			boleta.candidates.push({
+			candidate_id: 0,
+			completeName: "ANULAR VOTO",
+			pseudonym: null,
+			party_image: api + "1701042404740.png",
+			party_name: null,
 			});
 		});
 
@@ -138,6 +157,37 @@ export const getBallotsByExerciseId = async (req, res) => {
 		console.error(err);
 		res.status(500).send({
 			error: "Error al recuperar las boletas para el ejercicio indicado",
+		});
+	}
+};
+
+// --- getElectorImage ---
+export const getElectorImage = async (req, res) => {
+	try {
+		const { elector_id } = req.params;
+		
+		
+
+		if (elector_id == null) {
+			const err = `Se requiere ID`;
+			return res.status(400).send({ error: err });
+		}
+
+		const [[ElectorPicture]] = await pool.query(
+			"SELECT picture from elector WHERE elector_id = ?",
+			[elector_id]
+		);
+
+		if (!ElectorPicture) {
+			return res.status(400).send({ error: "Este elector no existe" });
+		}
+		ElectorPicture.picture = api + ElectorPicture.picture.slice(-17);
+
+		res.send(ElectorPicture);
+	} catch (err) {
+		console.error(err);
+		res.status(500).send({
+			error: "Error al recuperar la imagen del elector",
 		});
 	}
 };
@@ -164,25 +214,25 @@ export const voteForCandidate = async (req, res) => {
   
 	  for (const vote of votes) {
 		const { ballot_id, candidate_id, isSpoiledVote } = vote;
-		const requiredFields = ["ballot_id", "candidate_id"];
-		const missingFields = requiredFields.filter((field) => !vote[field]);
+		// const requiredFields = ["ballot_id", "candidate_id"];
+		// const missingFields = requiredFields.filter((field) => !vote[field]);
   
-		if (missingFields.length > 0) {
-		  const err = `Se requieren los siguientes campos: ${missingFields.join(", ")}`;
-		  return res.status(400).send({ error: err });
-		}
+		// if (missingFields.length > 0) {
+		//   const err = `Se requieren los siguientes campos: ${missingFields.join(", ")}`;
+		//   return res.status(400).send({ error: err });
+		// }
   
 		// Verificar si el candidato pertenece a la boleta específica
-		const [candidateResults] = await pool.query(
-		  "SELECT * FROM ballot_candidate WHERE ballot_id = ? AND candidate_id = ?",
-		  [ballot_id, candidate_id]
-		);
-  
-		if (candidateResults.length === 0) {
-		  return res.status(400).send({ error: `El candidato ${candidate_id} no pertenece a esta boleta.` });
-		}
-  
-		if (!isSpoiledVote) {
+		if(!isSpoiledVote){
+			const [candidateResults] = await pool.query(
+				"SELECT * FROM ballot_candidate WHERE ballot_id = ? AND candidate_id = ?",
+				[ballot_id, candidate_id]
+			  );
+		
+			  if (candidateResults.length === 0) {
+				return res.status(400).send({ error: `El candidato ${candidate_id} no pertenece a esta boleta.` });
+			  }
+			  
 		  await pool.query(
 			"UPDATE candidate SET totalVotes = totalVotes + 1 WHERE candidate_id = ?",
 			[candidate_id]

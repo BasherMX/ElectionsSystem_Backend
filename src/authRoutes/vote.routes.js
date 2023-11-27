@@ -1,12 +1,14 @@
 import { Router } from "express";
-import {verifyCanVotate, getBallotsByExerciseId, voteForCandidate} from  "../controllers/vote.controller.js"
+import {verifyCanVotate, getBallotsByExerciseId, voteForCandidate, getElectorImage} from  "../controllers/vote.controller.js"
 
 const router = Router();
 
 
-router.get('/verifyCanVotate', verifyCanVotate);
+router.post('/verifyCanVotate', verifyCanVotate);
 
-router.get('/getBallotsByExerciseId', getBallotsByExerciseId);
+router.get('/getElectorImage/:elector_id', getElectorImage);
+
+router.get('/getBallotsByExerciseId/:exercise_id', getBallotsByExerciseId);
 
 router.post('/voteForCandidate', voteForCandidate);
 
