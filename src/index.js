@@ -33,7 +33,6 @@ app.use(express.json())
 // --- Auth Routes ---
 app.use('/api/user', authMiddleware, userRoutes)
 app.use('/api/vote', authMiddleware, voteRoutes)
-app.use('/api/realTime', authMiddleware, realTimeRoutes)
 app.use('/api/politicalParty', authMiddleware, politicalPartyRoutes)
 app.use('/api/qrCode', authMiddleware, qrCodeRoutes)
 app.use('/api/elector', authMiddleware, electorRoutes)
@@ -68,6 +67,7 @@ const storage = multer.diskStorage({
 
 // --- Public Routes ---
 app.use('/api/public', userNoAuth)
+app.use('/api/realTime', realTimeRoutes)
 
 
 

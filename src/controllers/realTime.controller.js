@@ -21,6 +21,21 @@ export const getStates = async (req,res) => {
 	}
 }
 
+export const getAllEnableExercises = async (req, res) => {
+	try {
+	  const [rows] = await pool.query(
+		"SELECT * FROM election_Exercise"
+	  );
+	  res.send(rows);
+	} catch (err) {
+	  console.error(err);
+	  res.status(500).send({
+		error: "Error al buscar ejercicios electorales",
+	  });
+	}
+  };
+  
+
 
 // --- getBallotsByExerciseId ---
 export const getBallotsByExerciseId = async (req, res) => {
@@ -55,7 +70,8 @@ export const getBallotsByExerciseId = async (req, res) => {
 		const ballotIds = ExerciseBallotResults.map((result) => result.ballot_id);
 
 		const [BallotResults] = await pool.query(
-			`SELECT b.*, b.totalVotes as ballotTotalVotes, c.*, pp.img_logo as party_image, ch.name as charge_name FROM ballot b 
+			`SELECT b.*, b.totalVotes as ballotTotalVotes, c.*, pp.img_logo as party_image, pp.color_hdx as party_color,
+			pp.name as party_name, pp.acronym as party_accronym, ch.name as charge_name FROM ballot b 
 			INNER JOIN ballot_candidate bc ON b.ballot_id = bc.ballot_id
 			INNER JOIN candidate c ON bc.candidate_id = c.candidate_id
 			INNER JOIN political_party pp ON c.party_id = pp.party_id
@@ -95,15 +111,31 @@ export const getBallotsByExerciseId = async (req, res) => {
 			}
 			data[row.ballot_id].candidates.push({
 				candidate_id: row.candidate_id,
-				name: row.name,
-				first_lastname: row.first_lastname,
-				second_lastname: row.second_lastname,
+				fullName: row.name + " " + row.first_lastname + " " + row.second_lastname,
 				pseudonym: row.pseudonym,
-				party_id: row.party_id,
+				party_name: row.party_name,
+				party_accronym: row.party_accronym,
 				enable: row.enable,
 				status: row.status,
 				totalVotes: row.totalVotes,
-				party_image: row.party_image, // Agregando la imagen del partido político
+				party_color: row.party_color,
+				party_image: "http://localhost:3000/getImage/"+ row.party_image.slice(-17), // Agregando la imagen del partido político
+			});
+		});
+
+		// Agregar "Anular Voto" solo una vez a cada boleta
+		Object.values(data).forEach((boleta) => {
+			boleta.candidates.push({
+				candidate_id: 0,
+				fullName: "Votos Anulados",
+				pseudonym: "Nulos",
+				party_name: "Nulos",
+				party_accronym: "Nulos",
+				enable: 1,
+				status: 1,
+				totalVotes: boleta.anuledVotes,
+				party_color: "#e3e3e3",
+				party_image: "http://localhost:3000/getImage/1701042404740.png",
 			});
 		});
 
